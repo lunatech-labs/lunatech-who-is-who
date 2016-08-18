@@ -1,0 +1,18 @@
+@(person:Person)(implicit messages: Messages)
+
+@main("Details") {
+<table id="persons" style="width:100%">
+    <tr>
+        <th>Name</th>
+        <th>Email</th>
+        <th>Information</th>
+        <th>Photo</th>
+    </tr>
+    <tr>
+        <td>@person.name</td>
+        <td>@person.email</td>
+        <td>@person.description</td>
+        <td><img class="photo" src="@routes.Assets.versioned("images/"+person.photo)" alt="your image" /></td>
+    </tr>
+</table>
+}

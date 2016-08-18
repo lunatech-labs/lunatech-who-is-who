@@ -1,0 +1,7 @@
+name = Name
+age = Age
+email = Email
+description = Description
+photo = Photo
+
+photo.error = "Really long error message"

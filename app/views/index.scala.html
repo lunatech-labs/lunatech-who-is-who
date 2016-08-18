@@ -1,0 +1,39 @@
+@(person: Form[CreatePersonForm], people: Seq[Person], message:Option[String] = None )(implicit messages: Messages)
+
+@import helper._
+
+@main("Welcome to WhoIsWho") {
+
+
+<table id="persons" style="width:100%">
+    <tr>
+        <th>Name</th>
+        <th>Photo</th>
+        <th>Short Description</th>
+    </tr>
+    @for(person <- people) {
+    <tr>
+        <td><a href='@routes.PersonController.getDetailedPerson(person.id)'>@person.name</a></td>
+        <td><img class="photo" src="@routes.Assets.versioned("images/"+person.photo)" alt="your image" onerror="this.src='@routes.Assets.versioned("images/ali.jpeg")'"/></td>
+        <td>@(if (person.description.toString.length>50)
+            person.description.toString.take(50)+"..."
+            else
+            person.description.toString)
+        </td>
+    </tr>
+    }
+</table>
+@form(routes.PersonController.addPerson(),'enctype -> "multipart/form-data") {
+@inputText(person("name"))
+@inputText(person("email"))
+@textarea(person("description"),args = 'rows -> 15, 'cols -> 50)
+@inputFile(person("photo"))
+<div class="buttons">
+    <input type="submit" value="Add Person"/>
+</div>
+}
+
+}
+
+
+
