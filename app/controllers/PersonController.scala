@@ -1,5 +1,7 @@
 package controllers
 
+import java.io.File
+
 import play.api._
 import play.api.mvc._
 import play.api.i18n._
@@ -26,7 +28,7 @@ class PersonController @Inject()(repo: PersonRepository, val messagesApi: Messag
     * The mapping for the person form.
     */
   val personForm: Form[CreatePersonForm] = Form {
-//    println("debug ---4---")
+    //    println("debug ---4---")
     mapping(
       "name" -> nonEmptyText,
       "email" -> email,
@@ -38,7 +40,7 @@ class PersonController @Inject()(repo: PersonRepository, val messagesApi: Messag
     * The index action.
     */
   def index = Action.async {
-//    println("debug ---3---")
+    //    println("debug ---3---")
     println()
     repo.list().map(people =>
       Ok(views.html.index(personForm, people)))
@@ -47,7 +49,7 @@ class PersonController @Inject()(repo: PersonRepository, val messagesApi: Messag
 
 
   def getDetailedPerson(id: Long) = Action.async {
-//    println("debug ---person ID---: " + id.toString)
+    //    println("debug ---person ID---: " + id.toString)
     //    val person = Person(id,"ali", 10, "ali.jpeg")
     repo.get(id).map {
       case Some(person) => Ok(views.html.detailedPerson(person))
@@ -75,6 +77,7 @@ class PersonController @Inject()(repo: PersonRepository, val messagesApi: Messag
       person => {
         //        println("debug ---6---" + request.body.toString)
         val temp = uploadFile(request)
+        //println("debug ---110--- " + temp)
         repo.create(person.name, person.email, temp, person.description).map { person =>
           println(person.toString)
           // If successful, we simply redirect to the index page.
@@ -88,35 +91,56 @@ class PersonController @Inject()(repo: PersonRepository, val messagesApi: Messag
   def uploadFile(request: Request[MultipartFormData[Files.TemporaryFile]]): String = {
     val name = request.body.file("photo").map { picture =>
       import java.io.File
-      val filename = picture.filename
-      //      println("debug ---101--- " + filename)
-      //      println("debug ---102--- " + picture.ref.file.getAbsolutePath)
+      val filenameToReturn = picture.filename
+
+
+      val filenameToUpload = play.Play.application.configuration.getString("pictures_path") + picture.filename
+
+      //            println("debug ---101--- " + filenameToUpload)
+      //            //println("debug ---102--- " + routes.Assets.versioned("images/"))
+      //            println("debug ---103--- " + picture.ref.file.getAbsolutePath)
+      //            println("debug ---104--- " + play.Play.application.configuration.getString("pictures_path"))
       val contentType = picture.contentType
-      val file = new File(s"public/images/$filename")
+      //      val file = new File(s"public/images/$filename")
+      val file = new File(filenameToUpload)
       picture.ref.moveTo(file)
-      filename
+      filenameToReturn
     }
     val n = name.getOrElse("ali.jpeg")
     if (n.isEmpty) "ali.jpeg"
     else n
+    //name.getOrElse ("")
   }
 
   /**
     * A REST endpoint that gets all the people as JSON.
     */
   def getPersons = Action.async {
-//    println("debug ---1---")
+    //    println("debug ---1---")
     repo.list().map { people =>
       Ok(Json.toJson(people))
     }
   }
 
   def getPersons(email: String) = Action.async {
-//    println("debug ---1---")
+    //    println("debug ---1---")
     repo.list().map { people =>
       Ok(Json.toJson(people))
     }
   }
+
+
+  def giveMePicture(name: String) = Action {
+    //        println("debug ---1---"+name)
+    //    val myFile:File = new File("/Users/alihassan/tmp/pictures/file000844922903.jpg")
+    val myFile: File =
+    if (!(name == "ali.jpeg"))
+      new File(play.Play.application.configuration.getString("pictures_path") + name)
+    else
+      new File("public/images/ali.jpeg")
+    Ok.sendFile(myFile)
+  }
+
 }
 
 /**

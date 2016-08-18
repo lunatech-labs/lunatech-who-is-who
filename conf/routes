@@ -8,7 +8,9 @@ POST    /person                     controllers.PersonController.addPerson
 GET     /persons/:id                  controllers.PersonController.getDetailedPerson(id:Long)
 
 GET     /api/persons                    controllers.PersonController.getPersons
+GET     /photo/:name                controllers.PersonController.giveMePicture(name: String)
 #GET     /api/persons                controllers.PersonController.getPerson(email: String)
 
 # Map static resources from the /public folder to the /assets URL path
 GET     /assets/*file               controllers.Assets.versioned(path="/public", file: Asset)
+

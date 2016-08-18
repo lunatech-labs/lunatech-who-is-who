@@ -14,7 +14,7 @@
     @for(person <- people) {
     <tr>
         <td><a href='@routes.PersonController.getDetailedPerson(person.id)'>@person.name</a></td>
-        <td><img class="photo" src="@routes.Assets.versioned("images/"+person.photo)" alt="your image" onerror="this.src='@routes.Assets.versioned("images/ali.jpeg")'"/></td>
+        <td><img class="photo" src="@routes.PersonController.giveMePicture(person.photo)" alt="your image" onerror="this.src='@routes.Assets.versioned("images/ali.jpeg")'"/></td>
         <td>@(if (person.description.toString.length>50)
             person.description.toString.take(50)+"..."
             else
