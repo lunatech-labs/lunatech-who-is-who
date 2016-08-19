@@ -1,6 +1,9 @@
 [
   {
     "bucket_host": "bucket-93b28a7e-d556-4e02-b5f8-31888dc05d48-fsbucket.services.clever-cloud.com",
-    "folder": "/Photo"
+    "folder": "/Photo",
+    "apps": [
+      "app_9034efee-a0a4-4326-bffd-f9b1dc631d1a"
+    ]
   }
 ]
