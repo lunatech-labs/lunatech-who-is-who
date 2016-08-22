@@ -9,9 +9,6 @@ create table "people" (
   "description" varchar
 );
 
-
-
-
 # --- !Downs
 
 drop table "people";
