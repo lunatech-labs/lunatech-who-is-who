@@ -1,0 +1,7 @@
+@(person: Form[CreatePersonForm] , iId: Long )(implicit messages: Messages)
+@import helper._
+@main("Edit Person") {
+
+@personData(person, routes.PersonController.save(iId))
+
+}
