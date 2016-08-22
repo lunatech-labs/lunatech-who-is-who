@@ -76,6 +76,8 @@ class PersonRepository @Inject()(dbConfigProvider: DatabaseConfigProvider)(impli
       ) += (name, email, photo, description)
   }
 
+
+
   /**
     * List all the people in the database.
     */
@@ -83,7 +85,46 @@ class PersonRepository @Inject()(dbConfigProvider: DatabaseConfigProvider)(impli
     people.result
   }
 
+
+
+
+
+  def checkEmails(iEmail:String): Future[Option[Person]] = db.run {
+    people.filter(_.email === iEmail).result.headOption
+  }
+  def checkEmails(iEmail:String , iId:Long): Future[Option[Person]] = db.run {
+    people.filter(_.email === iEmail).filter(_.id =!= iId).result.headOption
+  }
+
   def get(id: Long): Future[Option[Person]] = db.run {
+    println("ID = "+id)
     people.filter(_.id === id).result.headOption
   }
+  // could be written like this:
+  //
+  def deleteRow(iId:Long):Future[Int] = {
+    val action =people.filter(_.id === iId).delete
+    println(action.statements.head)
+//    val q =for { c <- people if c.id === iId } yield (c.name, c.email, c.description, c.photo)
+    //val sql = q.updateStatement
+    //println(sql)
+    db.run(action)
+  }
+
+  def updatePerson(iId:Long, name: String, email: String, photo: String, description: String ):Future[Int] = {
+    val q =for { c <- people if c.id === iId } yield (c.name, c.email, c.description, c.photo)
+    val updateAction = q.update(name,email,description,photo)
+//val q =for { c <- people if c.id === iId } yield c.name
+//    val updateAction = q.update(name)
+    val sql = q.updateStatement
+    println(sql)
+    db.run(updateAction)
+//    (for { c <- people if c.id === iId } yield c.name)
+//      .mutate( rrr =>(rrr.row = ))(session)
+
+//    people.filter(_.id === iId).map(x => (x.name, x.email)).update(name, email)
+    Future(6)
+  }
+
+
 }

@@ -11,7 +11,7 @@ import play.api.libs.Files
 import play.api.libs.json.Json
 import play.api.mvc._
 
-import scala.concurrent.ExecutionContext
+import scala.concurrent.{ExecutionContext, Future}
 
 class PersonController @Inject()(repo: PersonRepository, val messagesApi: MessagesApi)
                                 (implicit ec: ExecutionContext) extends Controller with I18nSupport {
@@ -26,7 +26,6 @@ class PersonController @Inject()(repo: PersonRepository, val messagesApi: Messag
       "description" -> text
     )(CreatePersonForm.apply)(CreatePersonForm.unapply)
   }
-
   /**
     * The index action.
     */
@@ -36,13 +35,79 @@ class PersonController @Inject()(repo: PersonRepository, val messagesApi: Messag
       Ok(views.html.index(personForm, people)))
   }
 
+
+
   def getDetailedPerson(id: Long) = Action.async {
+    println("Debug: getDetailedPerson start here ")
     repo.get(id).map {
       case Some(person) => Ok(views.html.detailedPerson(person))
       case None => NotFound("Person Not Found")
     }
   }
+  def editPerson(iId: Long) = Action.async { implicit request =>
+    println("Debug: editPerson start")
+    repo.get(iId).map {
+      case Some(person) =>
+        val p = CreatePersonForm(person.name, person.email, person.description  )
+        Ok(views.html.editPerson(personForm.fill(p) , iId))
+      case None => NotFound("Person Not Found")
+    }
+  }
 
+  def deletePerson(id: Long) = Action.async {
+    repo.deleteRow(id).map {number =>
+      if(number > 0) {
+        println("DEBUG: reload index after delete --1--")
+        Redirect(routes.PersonController.index())
+      }
+      else {
+        println("DEBUG: faile rrow does not exist")
+        Redirect(routes.PersonController.index())
+      }
+    }
+  }
+  def save (iId: Long) = Action.async(parse.multipartFormData) { implicit request =>
+    println("Debug: start save")
+    personForm.bindFromRequest.fold(
+      errorForm => {
+        println("Debug: Seving edited person")
+
+        repo.list().map(people =>
+          Ok(views.html.editPerson(errorForm, iId: Long)))
+      },
+      person => {
+        repo.checkEmails(person.email, iId).flatMap {
+        case Some(existingEmail) => {
+          println("DEBUG: from edit:  email already exists")
+          Future.successful(NotFound("from edit:  email already exists"))
+        }
+
+        case None => {
+          println("DEBUG: from edit: New person")
+
+          val temp = uploadFile(request)
+          repo.updatePerson(iId: Long , person.name, person.email, temp, person.description).map { number =>
+            if (number == 1) {
+              println("DEBUG: succeed to update " + number)
+
+              Redirect(routes.PersonController.index())
+            }
+            else
+            {
+              println("DEBUG: faile to update " + number)
+
+              Redirect(routes.PersonController.index())
+            }
+          }
+            // If successful, we simply redirect to the index page.
+           // Redirect(routes.PersonController.index())
+        //  }
+          //            Ok("Person Added")
+//          Future.successful(Redirect(routes.PersonController.index()))
+        }
+      }}
+    )
+  }
   /**
     * The add person action.
     *
@@ -61,12 +126,31 @@ class PersonController @Inject()(repo: PersonRepository, val messagesApi: Messag
       // There were no errors in the from, so create the person.
       // at this point we have successful person object from html strings name and age
       person => {
-        val temp = uploadFile(request)
-        repo.create(person.name, person.email, temp, person.description).map { person =>
-          println(person.toString)
-          // If successful, we simply redirect to the index page.
-          Redirect(routes.PersonController.index())
+        // check if person already exists
+        repo.checkEmails(person.email).flatMap {
+          case Some(existingEmail) => {
+            println("DEBUG: email already exists")
+            Future.successful(NotFound("email already exists"))
+          }
+
+          case None => {
+            println("DEBUG: New person")
+
+            val temp = uploadFile(request)
+            repo.create(person.name, person.email, temp, person.description).map { person =>
+              println(person.toString)
+              // If successful, we simply redirect to the index page.
+              Redirect(routes.PersonController.index())
+            }
+//            Ok("Person Added")
+          }
         }
+//        val temp = uploadFile(request)
+//        repo.create(person.name, person.email, temp, person.description).map { person =>
+//          println(person.toString)
+//          // If successful, we simply redirect to the index page.
+//          Redirect(routes.PersonController.index())
+//        }
 
       }
     )

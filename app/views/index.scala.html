@@ -10,6 +10,7 @@
         <th>Name</th>
         <th>Photo</th>
         <th>Short Description</th>
+        <th>Actions</th>
     </tr>
     @for(person <- people) {
     <tr>
@@ -20,19 +21,23 @@
             else
             person.description.toString)
         </td>
+        <td>@form(routes.PersonController.deletePerson(person.id)) {
+            <div class="buttons">
+                <input type="submit" value="Delete Person"/>
+            </div>
+            }
+            @form(routes.PersonController.editPerson(person.id)) {
+            <div class="buttons">
+                <input type="submit" value="Edit Person"/>
+            </div>
+            }
+
+            <!--<a href="@routes.PersonController.editPerson(person.id)"><button>Edit person</button></a>-->
+        </td>
     </tr>
     }
 </table>
-@form(routes.PersonController.addPerson(),'enctype -> "multipart/form-data") {
-@inputText(person("name"))
-@inputText(person("email"))
-@textarea(person("description"),args = 'rows -> 15, 'cols -> 50)
-@inputFile(person("photo"))
-<div class="buttons">
-    <input type="submit" value="Add Person"/>
-</div>
-}
-
+@personData(person, routes.PersonController.addPerson())
 }
 
 

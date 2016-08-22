@@ -6,6 +6,9 @@
 GET     /                           controllers.PersonController.index
 POST    /person                     controllers.PersonController.addPerson
 GET     /persons/:id                  controllers.PersonController.getDetailedPerson(id:Long)
+GET     /delete/:id                  controllers.PersonController.deletePerson(id:Long)
+GET     /editPerson/:id                  controllers.PersonController.editPerson(id:Long)
+POST     /save/:id                  controllers.PersonController.save(id:Long)
 
 GET     /api/persons                    controllers.PersonController.getPersons
 GET     /photo/:name                controllers.PersonController.giveMePicture(name: String)
