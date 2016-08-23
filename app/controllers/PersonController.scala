@@ -23,7 +23,8 @@ class PersonController @Inject()(repo: PersonRepository, val messagesApi: Messag
     mapping(
       "name" -> nonEmptyText,
       "email" -> email,
-      "description" -> text
+      "description" -> text,
+      "changePhoto" -> boolean
     )(CreatePersonForm.apply)(CreatePersonForm.unapply)
   }
   /**
@@ -48,7 +49,7 @@ class PersonController @Inject()(repo: PersonRepository, val messagesApi: Messag
     println("Debug: editPerson start")
     repo.get(iId).map {
       case Some(person) =>
-        val p = CreatePersonForm(person.name, person.email, person.description  )
+        val p = CreatePersonForm(person.name, person.email, person.description, false )
         Ok(views.html.editPerson(personForm.fill(p) , iId))
       case None => NotFound("Person Not Found")
     }
@@ -83,10 +84,14 @@ class PersonController @Inject()(repo: PersonRepository, val messagesApi: Messag
         }
 
         case None => {
-          println("DEBUG: from edit: New person")
+          println("DEBUG: from edit: New person. setimage = " + person.setphoto)
 
-          val temp = uploadFile(request)
-          repo.updatePerson(iId: Long , person.name, person.email, temp, person.description).map { number =>
+          val temp = if (person.setphoto)
+            uploadFile(request, person.setphoto)
+          else
+            ""
+
+          repo.updatePerson(iId: Long , person.name, person.email, temp, person.description, person.setphoto).map { number =>
             if (number == 1) {
               println("DEBUG: succeed to update " + number)
 
@@ -156,7 +161,9 @@ class PersonController @Inject()(repo: PersonRepository, val messagesApi: Messag
     )
   }
 
-  def uploadFile(request: Request[MultipartFormData[Files.TemporaryFile]]): String = {
+  def uploadFile(request: Request[MultipartFormData[Files.TemporaryFile]], iSetPhoto: Boolean = true): String = {
+    println("Request is: " +request.toString());
+
     request.body.file("photo").map { picture =>
       if(!picture.filename.isEmpty) {
 
@@ -206,4 +213,4 @@ class PersonController @Inject()(repo: PersonRepository, val messagesApi: Messag
   * in a different way to your models.  In this case, it doesn't make sense to have an id parameter in the form, since
   * that is generated once it's created.
   */
-case class CreatePersonForm(name: String, email: String, description: String)
+case class CreatePersonForm(name: String, email: String, description: String, setphoto: Boolean)

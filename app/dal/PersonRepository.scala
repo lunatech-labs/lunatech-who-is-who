@@ -1,5 +1,5 @@
 package dal
-
+import java.io.File
 import javax.inject.{Inject, Singleton}
 import play.api.db.slick.DatabaseConfigProvider
 import slick.driver.JdbcProfile
@@ -76,18 +76,12 @@ class PersonRepository @Inject()(dbConfigProvider: DatabaseConfigProvider)(impli
       ) += (name, email, photo, description)
   }
 
-
-
   /**
     * List all the people in the database.
     */
   def list(): Future[Seq[Person]] = db.run {
     people.result
   }
-
-
-
-
 
   def checkEmails(iEmail:String): Future[Option[Person]] = db.run {
     people.filter(_.email === iEmail).result.headOption
@@ -111,19 +105,33 @@ class PersonRepository @Inject()(dbConfigProvider: DatabaseConfigProvider)(impli
     db.run(action)
   }
 
-  def updatePerson(iId:Long, name: String, email: String, photo: String, description: String ):Future[Int] = {
-    val q =for { c <- people if c.id === iId } yield (c.name, c.email, c.description, c.photo)
-    val updateAction = q.update(name,email,description,photo)
-//val q =for { c <- people if c.id === iId } yield c.name
-//    val updateAction = q.update(name)
-    val sql = q.updateStatement
-    println(sql)
-    db.run(updateAction)
-//    (for { c <- people if c.id === iId } yield c.name)
-//      .mutate( rrr =>(rrr.row = ))(session)
+  def updatePerson(iId:Long, name: String, email: String, photo: String, description: String , isetphoto:Boolean):Future[Int] = {
+    if (isetphoto) {
+      get(iId).map{
+        case Some(person) =>
+          {
+            val fullfilename = play.Play.application.configuration.getString("pictures_path") + person.photo
+            val file = new File(fullfilename)
+            file.delete()
+            println("updatePerson - deleting: " + fullfilename)
+          }
+        case None => println("updatePerson - Person Not Found")
 
-//    people.filter(_.id === iId).map(x => (x.name, x.email)).update(name, email)
-    Future(6)
+      }
+
+      val q = for {c <- people if c.id === iId} yield (c.name, c.email, c.description, c.photo)
+      val updateAction = q.update(name, email, description, photo)
+      val sql = q.updateStatement
+      println(sql)
+      db.run(updateAction)
+    }
+    else {
+      val q = for {c <- people if c.id === iId} yield (c.name, c.email, c.description)
+      val updateAction = q.update(name, email, description)
+      val sql = q.updateStatement
+      println(sql)
+      db.run(updateAction)
+    }
   }
 
 

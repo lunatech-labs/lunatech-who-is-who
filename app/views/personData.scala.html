@@ -4,7 +4,8 @@
 @inputText(person("name"))
 @helper.inputText(person("email"))
 @textarea(person("description"),args = 'rows -> 15, 'cols -> 50)
-@inputFile(person("photo"), '_value -> "ali.jpeg")
+@inputFile(person("photo"))
+@helper.checkbox(field = person("changePhoto"), '_label -> "Set Photo")
 <div class="buttons">
     <input type="submit" value="Save Person"/>
 </div>
