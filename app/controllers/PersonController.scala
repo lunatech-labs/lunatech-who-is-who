@@ -4,11 +4,12 @@ import java.io.File
 import javax.inject._
 
 import dal.PersonRepository
+import models.RESTPerson
 import play.api.data.Form
 import play.api.data.Forms._
 import play.api.i18n._
 import play.api.libs.Files
-import play.api.libs.json.Json
+import play.api.libs.json.{JsError, Json}
 import play.api.mvc._
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -27,6 +28,54 @@ class PersonController @Inject()(repo: PersonRepository, val messagesApi: Messag
       "changePhoto" -> boolean
     )(CreatePersonForm.apply)(CreatePersonForm.unapply)
   }
+
+  // to handle future we need map and async.
+  // to handle future future we need flat map.
+  def jsonEditPerson = Action.async(BodyParsers.parse.json) { request =>
+    val restPerson = request.body.validate[RESTPerson]
+    restPerson.fold(
+      errors => {
+        Future(BadRequest(Json.obj("status" ->"KO", "message" -> JsError.toJson(errors))))
+      },
+      niceObject => {
+        RESTPerson.doSomething(niceObject)
+        val result = jsonSave(niceObject)
+        result.map { booleanvalue =>
+          println(booleanvalue)
+          if (booleanvalue) {
+            println("returning ok to sender")
+            Ok(Json.obj("status" -> "OK", "message" -> ("Person '" + niceObject.name + "' saved.")))
+          }
+          else {
+            println("returning KO to sender")
+            BadRequest(Json.obj("status" -> "KO", "message" -> "Could not handle your request. Please verify email exists."))
+          }
+        }
+      }
+    )
+  }
+
+  def jsonSave(rESTPerson: RESTPerson):Future[Boolean] ={
+      // get person by email
+    println("Debug: jsonSave start")
+    repo.getByEmail(rESTPerson.email).flatMap {
+      case Some(person) =>
+        repo.updatePerson(person.id , rESTPerson.name, rESTPerson.email, "", rESTPerson.description, false).map { number =>
+          if (number == 1) {
+            println("DEBUG: succeed to update " + number)
+            Redirect(routes.PersonController.index())
+            true
+          }
+          else
+          {
+            println("DEBUG: fail to update " + number)
+            true
+          }
+        }
+      case None => Future(false)
+    }
+  }
+
   /**
     * The index action.
     */
@@ -62,16 +111,17 @@ class PersonController @Inject()(repo: PersonRepository, val messagesApi: Messag
         Redirect(routes.PersonController.index())
       }
       else {
-        println("DEBUG: faile rrow does not exist")
+        println("DEBUG: fail row does not exist")
         Redirect(routes.PersonController.index())
       }
     }
   }
+
   def save (iId: Long) = Action.async(parse.multipartFormData) { implicit request =>
     println("Debug: start save")
     personForm.bindFromRequest.fold(
       errorForm => {
-        println("Debug: Seving edited person")
+        println("Debug: Saving edited person")
 
         repo.list().map(people =>
           Ok(views.html.editPerson(errorForm, iId: Long)))
@@ -186,11 +236,19 @@ class PersonController @Inject()(repo: PersonRepository, val messagesApi: Messag
       Ok(Json.toJson(people))
     }
   }
-
+// candidate for removal - not used
   def getPersons(email: String) = Action.async {
     //    println("debug ---1---")
     repo.list().map { people =>
       Ok(Json.toJson(people))
+    }
+  }
+
+  def getSinglePerson(email: String) = Action.async {
+    //    println("debug ---1---")
+    repo.checkEmails(email).map {
+      case Some(person) => Ok(Json.toJson(person))
+      case None => NotFound(Json.obj("Error"->"Person Not Found"))
     }
   }
 
@@ -214,3 +272,19 @@ class PersonController @Inject()(repo: PersonRepository, val messagesApi: Messag
   * that is generated once it's created.
   */
 case class CreatePersonForm(name: String, email: String, description: String, setphoto: Boolean)
+
+object CreatePersonForm {
+  //this is an example on how to have custom apply
+  def newApply(name: String, email: String, description: String) = {
+    CreatePersonForm(name, email, description, true)
+  }
+  def newUApply(ali: CreatePersonForm) = {
+    Some(ali.name, ali.email, ali.description)
+  }
+
+  //  implicit val personRead :Reads[Person]= (
+  //      (JsPath \ "name").read[String] and
+  //      (JsPath \ "email").read[String] and
+  //      (JsPath \ "description").read[String]
+  //    )(Person.apply _)
+}

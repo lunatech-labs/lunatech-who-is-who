@@ -1,4 +1,5 @@
 package dal
+
 import java.io.File
 import javax.inject.{Inject, Singleton}
 import play.api.db.slick.DatabaseConfigProvider
@@ -64,7 +65,7 @@ class PersonRepository @Inject()(dbConfigProvider: DatabaseConfigProvider)(impli
     * id for that person.
     */
   def create(name: String, email: String, photo: String, description: String): Future[Person] = db.run {
-//    println("debug ---10---")
+    //    println("debug ---10---")
     // We create a projection of just the name and age columns, since we're not inserting a value for the id column
     (people.map(p => (p.name, p.email, p.photo, p.description))
       // Now define it to return the id, because we want to know what id was generated for the person
@@ -83,38 +84,44 @@ class PersonRepository @Inject()(dbConfigProvider: DatabaseConfigProvider)(impli
     people.result
   }
 
-  def checkEmails(iEmail:String): Future[Option[Person]] = db.run {
+  def checkEmails(iEmail: String): Future[Option[Person]] = db.run {
     people.filter(_.email === iEmail).result.headOption
   }
-  def checkEmails(iEmail:String , iId:Long): Future[Option[Person]] = db.run {
+
+  def checkEmails(iEmail: String, iId: Long): Future[Option[Person]] = db.run {
     people.filter(_.email === iEmail).filter(_.id =!= iId).result.headOption
   }
 
   def get(id: Long): Future[Option[Person]] = db.run {
-    println("ID = "+id)
+    println("ID = " + id)
     people.filter(_.id === id).result.headOption
   }
+
+  def getByEmail(email: String): Future[Option[Person]] = db.run {
+    println("email = " + email)
+    people.filter(_.email === email).result.headOption
+  }
+
   // could be written like this:
   //
-  def deleteRow(iId:Long):Future[Int] = {
-    val action =people.filter(_.id === iId).delete
+  def deleteRow(iId: Long): Future[Int] = {
+    val action = people.filter(_.id === iId).delete
     println(action.statements.head)
-//    val q =for { c <- people if c.id === iId } yield (c.name, c.email, c.description, c.photo)
+    //    val q =for { c <- people if c.id === iId } yield (c.name, c.email, c.description, c.photo)
     //val sql = q.updateStatement
     //println(sql)
     db.run(action)
   }
 
-  def updatePerson(iId:Long, name: String, email: String, photo: String, description: String , isetphoto:Boolean):Future[Int] = {
+  def updatePerson(iId: Long, name: String, email: String, photo: String, description: String, isetphoto: Boolean): Future[Int] = {
     if (isetphoto) {
-      get(iId).map{
-        case Some(person) =>
-          {
-            val fullfilename = play.Play.application.configuration.getString("pictures_path") + person.photo
-            val file = new File(fullfilename)
-            file.delete()
-            println("updatePerson - deleting: " + fullfilename)
-          }
+      get(iId).map {
+        case Some(person) => {
+          val fullfilename = play.Play.application.configuration.getString("pictures_path") + person.photo
+          val file = new File(fullfilename)
+          file.delete()
+          println("updatePerson - deleting: " + fullfilename)
+        }
         case None => println("updatePerson - Person Not Found")
 
       }
