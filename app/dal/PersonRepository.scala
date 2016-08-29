@@ -182,7 +182,7 @@ class PersonRepository @Inject()(officesRepo: OfficeRepository, protected  val d
     println(action.statements.head)
     //    val q =for { c <- people if c.id === iId } yield (c.name, c.email, c.description, c.photo)
     //val sql = q.updateStatement
-    //println(sql)
+    println(sql)
     db.run(action)
   }
 
