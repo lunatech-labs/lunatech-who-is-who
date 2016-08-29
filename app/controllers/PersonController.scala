@@ -37,27 +37,15 @@ class PersonController @Inject()(repo: PersonRepository, officesRepo: OfficeRepo
     * The index action.
     */
   def index = Action.async {
-        println("Debug: calling list map")
-//    officesRepo.listMap().map( offices =>
-//      println("Debug: 120" + offices.toString()))
+    println("Debug: calling list map")
     officesRepo.listMap().flatMap( offices => {
       println("Debug: ----d20--")
-//    repo.listPersons().map(people =>{
-    repo.listPersons_merge.map(people =>{
-      println("Debug: ----d22--")
-      for (c <- people)
-        println (c.toString)
-      Ok(views.html.index(personForm, people, offices ))})})
+      repo.listPersons_merge.map(people =>{
+        println("Debug: ----d22--")
+        for (c <- people)
+          println (c.toString)
+        Ok(views.html.index(personForm, people, offices ))})})
   }
-
-//  def getOffices =  {
-//    println("gegtOffices!!!")
-//    val v = officesRepo.list().map(offices =>
-//      offices)
-//    v
-//  }
-//  val officesList = getOffices
-
 
   // to handle future we need map and async.
   // to handle future future we need flat map.
@@ -86,11 +74,8 @@ class PersonController @Inject()(repo: PersonRepository, officesRepo: OfficeRepo
   }
 
 
-
-
-
   def jsonSave(rESTPerson: RESTPerson):Future[Boolean] ={
-      // get person by email
+    // get person by email
     println("Debug: jsonSave start")
     repo.getByEmail(rESTPerson.email).flatMap {
       case Some(person) =>
@@ -110,10 +95,6 @@ class PersonController @Inject()(repo: PersonRepository, officesRepo: OfficeRepo
     }
   }
 
-
-
-
-
   def getDetailedPerson(id: Long) = Action.async {
     println("Debug: getDetailedPerson start here ")
     repo.get(id).map {
@@ -124,12 +105,12 @@ class PersonController @Inject()(repo: PersonRepository, officesRepo: OfficeRepo
   def editPerson(iId: Long) = Action.async { implicit request =>
     println("Debug: editPerson start")
     officesRepo.listMap().flatMap( offices =>
-    repo.get(iId).map {
-      case Some(person) =>
-        val p = CreatePersonForm(person.name, person.email, person.location.id.toString,person.description, false )
-        Ok(views.html.editPerson(personForm.fill(p) , offices,iId))
-      case None => NotFound("Person Not Found")
-    }
+      repo.get(iId).map {
+        case Some(person) =>
+          val p = CreatePersonForm(person.name, person.email, person.location.id.toString,person.description, false )
+          Ok(views.html.editPerson(personForm.fill(p) , offices,iId))
+        case None => NotFound("Person Not Found")
+      }
     )
   }
 
@@ -147,49 +128,40 @@ class PersonController @Inject()(repo: PersonRepository, officesRepo: OfficeRepo
   }
 
   def save (iId: Long) = Action.async(parse.multipartFormData) { implicit request =>
-    println("Debug: start save")
+    //    println("Debug: start save")
     personForm.bindFromRequest.fold(
       errorForm => {
-        println("Debug: Saving edited person")
+//                println("Debug: Saving edited person")
         officesRepo.listMap().flatMap( offices =>
-        repo.listPersons().map(people =>
-          Ok(views.html.editPerson(errorForm, offices, iId: Long))))
+          repo.listPersons().map(people =>
+            Ok(views.html.editPerson(errorForm, offices, iId: Long))))
       },
       person => {
         repo.checkEmails(person.email, iId).flatMap {
-        case Some(existingEmail) => {
-          println("DEBUG: from edit:  email already exists")
-          Future.successful(NotFound("from edit:  email already exists"))
-        }
-
-        case None => {
-          println("DEBUG: from edit: New person. setimage = " + person.setphoto)
-
-          val temp = if (person.setphoto)
-            uploadFile(request, person.setphoto)
-          else
-            play.Play.application.configuration.getString("default_photo")
-          println("Debug -- before update person" + person.name+ person.email+ person.location  )
-          repo.updatePerson(iId: Long , person.name, person.email, person.location.toLong , temp, person.description, person.setphoto).map { number =>
-            if (number == 1) {
-              println("DEBUG: succeed to update " + number)
-
-              Redirect(routes.PersonController.index())
-            }
+          case Some(existingEmail) => {
+            //            println("DEBUG: from edit:  email already exists")
+            Future.successful(NotFound("from edit:  email already exists"))
+          }
+          case None => {
+            //            println("DEBUG: from edit: New person. setimage = " + person.setphoto)
+            val temp = if (person.setphoto)
+              uploadFile(request, person.setphoto)
             else
-            {
-              println("DEBUG: faile to update " + number)
-
-              Redirect(routes.PersonController.index())
+              play.Play.application.configuration.getString("default_photo")
+            //            println("Debug -- before update person" + person.name+ person.email+ person.location  )
+            repo.updatePerson(iId: Long , person.name, person.email, person.location.toLong , temp, person.description, person.setphoto).map { number =>
+              if (number == 1) {
+                //                println("DEBUG: succeed to update " + number)
+                Redirect(routes.PersonController.index())
+              }
+              else
+              {
+                println("DEBUG: faile to update " + number)
+                Redirect(routes.PersonController.index())
+              }
             }
           }
-            // If successful, we simply redirect to the index page.
-           // Redirect(routes.PersonController.index())
-        //  }
-          //            Ok("Person Added")
-//          Future.successful(Redirect(routes.PersonController.index()))
-        }
-      }}
+        }}
     )
   }
   /**
@@ -204,12 +176,10 @@ class PersonController @Inject()(repo: PersonRepository, officesRepo: OfficeRepo
       // The error function. We return the index page with the error form, which will render the errors.
       // We also wrap the result in a successful future, since this action is synchronous, but we're required to return
       // a future because the person creation function returns a future.
-
-
       errorForm => {
-    officesRepo.listMap().flatMap(offices =>
-        repo.listPersons().map(people =>
-          Ok(views.html.index(errorForm, people, offices))))
+        officesRepo.listMap().flatMap(offices =>
+          repo.listPersons().map(people =>
+            Ok(views.html.index(errorForm, people, offices))))
       },
       // There were no errors in the from, so create the person.
       // at this point we have successful person object from html strings name and age
@@ -217,41 +187,28 @@ class PersonController @Inject()(repo: PersonRepository, officesRepo: OfficeRepo
         // check if person already exists
         repo.checkEmails(person.email).flatMap {
           case Some(existingEmail) => {
-            println("DEBUG: email already exists")
+            //            println("DEBUG: email already exists")
             Future.successful(NotFound("email already exists"))
           }
-
           case None => {
-            println("DEBUG: New person")
-
+            //            println("DEBUG: New person")
             val temp = uploadFile(request)
             repo.create_person(person.name, person.email, person.location , temp, person.description).map { person =>
               println(person.toString)
               // If successful, we simply redirect to the index page.
               Redirect(routes.PersonController.index())
             }
-//            Ok("Person Added")
           }
         }
-//        val temp = uploadFile(request)
-//        repo.create(person.name, person.email, temp, person.description).map { person =>
-//          println(person.toString)
-//          // If successful, we simply redirect to the index page.
-//          Redirect(routes.PersonController.index())
-//        }
-
       }
     )
   }
 
   def uploadFile(request: Request[MultipartFormData[Files.TemporaryFile]], iSetPhoto: Boolean = true): String = {
-    println("Request is: " +request.toString());
-
+    //    println("Debug: Request is: " +request.toString());
     request.body.file("photo").map { picture =>
       if(!picture.filename.isEmpty) {
-
         val filenameToUpload = play.Play.application.configuration.getString("pictures_path") + picture.filename
-
         val file = new File(filenameToUpload)
         picture.ref.moveTo(file)
         picture.filename
@@ -269,7 +226,7 @@ class PersonController @Inject()(repo: PersonRepository, officesRepo: OfficeRepo
       Ok(Json.toJson(people))
     }
   }
-// candidate for removal - not used
+  // candidate for removal - not used
   def getPersons(email: String) = Action.async {
     //    println("debug ---1---")
     repo.listPersons().map { people =>
@@ -284,7 +241,6 @@ class PersonController @Inject()(repo: PersonRepository, officesRepo: OfficeRepo
       case None => NotFound(Json.obj("Error"->"Person Not Found"))
     }
   }
-
 
   def giveMePicture(name: String) = Action {
     val myFile: File =
