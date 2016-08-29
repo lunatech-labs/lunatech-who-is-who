@@ -6,8 +6,8 @@
 --and line for prostgres (on the cloud)
 --choose the right one
 create table "people" (
---  "id" INTEGER PRIMARY KEY   AUTOINCREMENT,
-  "id" SERIAL PRIMARY KEY  ,
+  "id" INTEGER PRIMARY KEY   AUTOINCREMENT,
+--  "id" SERIAL PRIMARY KEY  ,
   "name" varchar not null ,
   "email" varchar not null,
   "location" INTEGER not null,
@@ -18,10 +18,13 @@ create table "people" (
 
 
 
-
+--be careful here
+--we have line for sqlite (on local machine for development)
+--and line for prostgres (on the cloud)
+--choose the right one
 create table "offices" (
---  "id" INTEGER PRIMARY KEY   AUTO_INCREMENT,
-  "id" INTEGER PRIMARY Key  ,
+--  "id" INTEGER PRIMARY Key  ,
+  "id" integer PRIMARY KEY,
   "name" varchar not null ,
   "city" varchar not null,
   "country" varchar not null,
