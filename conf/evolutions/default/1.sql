@@ -6,8 +6,8 @@
 --and line for prostgres (on the cloud)
 --choose the right one
 create table "people" (
-  "id" INTEGER PRIMARY KEY   AUTOINCREMENT,
---  "id" SERIAL PRIMARY KEY  ,
+--  "id" INTEGER PRIMARY KEY   AUTOINCREMENT,
+  "id" SERIAL PRIMARY KEY  ,
   "name" varchar not null ,
   "email" varchar not null,
   "location" INTEGER not null,
