@@ -256,24 +256,6 @@ class PersonController @Inject()(repo: PersonRepository, officesRepo: OfficeRepo
 /**
   * The create person form.
   *
-  * Generally for forms, you should define separate objects to your models, since forms very often need to present data
-  * in a different way to your models.  In this case, it doesn't make sense to have an id parameter in the form, since
-  * that is generated once it's created.
   */
 case class CreatePersonForm(name: String, email: String, location: String, description: String, setphoto: Boolean)
 
-//object CreatePersonForm {
-//  //this is an example on how to have custom apply
-//  def newApply ( name: String, email: String, description: String) = {
-//    CreatePersonForm( name, email, selectLocation ,description, true)
-//  }
-//  def newUApply(ali: CreatePersonForm) = {
-//    Some(ali.name, ali.email, ali.location,ali.description)
-//  }
-//
-//  //  implicit val personRead :Reads[Person]= (
-//  //      (JsPath \ "name").read[String] and
-//  //      (JsPath \ "email").read[String] and
-//  //      (JsPath \ "description").read[String]
-//  //    )(Person.apply _)
-//}

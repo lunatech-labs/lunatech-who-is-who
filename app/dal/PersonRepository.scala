@@ -17,7 +17,7 @@ import scala.concurrent.Future
 @Singleton
 class PersonRepository @Inject()(officesRepo: OfficeRepository, protected  val dbConfigProvider: DatabaseConfigProvider) extends OfficeComponent with HasDatabaseConfigProvider[JdbcProfile]{
   // We want the JdbcProfile for this provider
-//  val officesRepo: OfficeRepository
+  //  val officesRepo: OfficeRepository
   // These imports are important, the first one brings db into scope, which will let you do the actual db operations.
   // The second one brings the Slick DSL into scope, which lets you define the table and other queries.
   import driver.api._
@@ -32,15 +32,10 @@ class PersonRepository @Inject()(officesRepo: OfficeRepository, protected  val d
 
     /** The name column */
     def name = column[String]("name")
-
-    /** The age column */
     def email = column[String]("email")
     def location = column[Long]("location")
-
     def photo = column[String]("photo")
-
     def description = column[String]("description")
-
     /**
       * This is the tables default "projection".
       *
@@ -59,7 +54,7 @@ class PersonRepository @Inject()(officesRepo: OfficeRepository, protected  val d
   private val offices = TableQuery[OfficesTable]
 
   /**
-    * Create a person with the given name and age.
+    * Create a person with the given name and ....
     *
     * This is an asynchronous operation, it will return a future of the created person, which can be used to obtain the
     * id for that person.
@@ -72,23 +67,19 @@ class PersonRepository @Inject()(officesRepo: OfficeRepository, protected  val d
       returning people.map(_.id)
       // And we define a transformation for the returned value, which combines our original parameters with the
       // returned id
-      into ((nameAge, id) => DBPerson(id, nameAge._1, nameAge._2, nameAge._3, nameAge._4, nameAge._5))
+      into ((nameInfo, id) => DBPerson(id, nameInfo._1, nameInfo._2, nameInfo._3, nameInfo._4, nameInfo._5))
       // And finally, insert the person into the database
       ) += (name, email, location, photo, description)
   }
   def create_person(name: String, email: String, location: String, photo: String, description: String): Future[Person] =  {
-    //    println("debug ---10---")
-
     create_dbperson(name, email, location.toLong , photo, description).map { dbperson =>
       println(dbperson.toString)
       val myoffice = Office(dbperson.locationID,"","","","")
       val myperson = Person(dbperson.id,dbperson.name,dbperson.email,myoffice,dbperson.photo,dbperson.description)
-      println("DEBUG " + myperson.toString)
+      //println("DEBUG " + myperson.toString)
       myperson
     }
   }
-
-
   def givemeobject(iPerson: DBPerson) : Future[Option[Person]] = {
     officesRepo.list().map {
       p => {
@@ -97,11 +88,11 @@ class PersonRepository @Inject()(officesRepo: OfficeRepository, protected  val d
         }
       }
     }
-//    Await.result(res, 1.second)
   }
-// this is another implemetation (using query join)
+
+  // this is another implemetation (using query join)
   def listPersons_merge(): Future[Seq[Person]] = {
-    println("Debug: ----e101--")
+    //println("Debug: ----e101--")
     val query = for {
       p <- people
       o <- offices if o.id === p.location
@@ -117,27 +108,20 @@ class PersonRepository @Inject()(officesRepo: OfficeRepository, protected  val d
     * List all the people in the database.
     */
   def listDBPersons(): Future[Seq[DBPerson]] =  {
-    println("Debug: ----d40--")
     val abc = db.run(people.result)
-    println(abc.toString)
-    println("Debug: ----d42--")
+    //println(abc.toString)
     abc
   }
-// this is the first implementation using two separate queries
+  // this is the first implementation using two separate queries
   def listPersons(): Future[Seq[Person]] = {
-    println("Debug: ----d28--")
-     listDBPersons().flatMap {
-       dbPersons => {
-         println("Debug: ----d30--")
-         val persons: Seq[Future[Option[Person]]] = dbPersons.map(one => givemeobject(one))
-         println("Debug: ----d32--")
-         val res: Future[Seq[Option[Person]]] = Future.sequence(persons)
-         println("Debug: ----d34--")
-         val list: Future[Seq[Person]] = res.map(persons => persons.flatten)
-         list
-       }
-     }
-
+    listDBPersons().flatMap {
+      dbPersons => {
+        val persons: Seq[Future[Option[Person]]] = dbPersons.map(one => givemeobject(one))
+        val res: Future[Seq[Option[Person]]] = Future.sequence(persons)
+        val list: Future[Seq[Person]] = res.map(persons => persons.flatten)
+        list
+      }
+    }
   }
 
   def checkEmails(iEmail: String): Future[Option[Person]] =  {
@@ -147,20 +131,14 @@ class PersonRepository @Inject()(officesRepo: OfficeRepository, protected  val d
     dbperson
   }
 
-//  def checkEmails_normal(iEmail: String, iId: Long): Future[Option[Person]] = db.run {
-//    people.filter(_.email === iEmail).filter(_.id =!= iId).result.headOption
-//  }
   def checkEmails(iEmail: String, iId: Long): Future[Option[Person]] =  {
     db.run(people.filter(_.email === iEmail).filter(_.id =!= iId).result.headOption).flatMap {
       case Some(ppp) => givemeobject(ppp)
       case None => Future(None)
     }
-
   }
-
-
   def get(id: Long): Future[Option[Person]] =  {
-    println("ID = " + id)
+    //println("ID = " + id)
     db.run(people.filter(_.id === id).result.headOption).flatMap {
       case Some(ppp) => givemeobject(ppp)
       case None => Future(None)
@@ -168,7 +146,7 @@ class PersonRepository @Inject()(officesRepo: OfficeRepository, protected  val d
   }
 
   def getByEmail(email: String): Future[Option[Person]] =  {
-    println("email = " + email)
+    //println("email = " + email)
     db.run(people.filter(_.email === email).result.headOption).flatMap {
       case Some(ppp) => givemeobject(ppp)
       case None => Future(None)
@@ -180,9 +158,6 @@ class PersonRepository @Inject()(officesRepo: OfficeRepository, protected  val d
   def deleteRow(iId: Long): Future[Int] = {
     val action = people.filter(_.id === iId).delete
     println(action.statements.head)
-    //    val q =for { c <- people if c.id === iId } yield (c.name, c.email, c.description, c.photo)
-    //val sql = q.updateStatement
-    //println(sql)
     db.run(action)
   }
 
@@ -193,12 +168,10 @@ class PersonRepository @Inject()(officesRepo: OfficeRepository, protected  val d
           val fullfilename = play.Play.application.configuration.getString("pictures_path") + person.photo
           val file = new File(fullfilename)
           file.delete()
-          println("updatePerson - deleting: " + fullfilename)
+          //println("updatePerson - deleting: " + fullfilename)
         }
         case None => println("updatePerson - Person Not Found")
-
       }
-
       val q = for {c <- people if c.id === iId} yield (c.name, c.email, c.location ,c.description, c.photo)
       val updateAction = q.update(name, email, locationID,description, photo)
       val sql = q.updateStatement
@@ -213,6 +186,4 @@ class PersonRepository @Inject()(officesRepo: OfficeRepository, protected  val d
       db.run(updateAction)
     }
   }
-
-
 }
