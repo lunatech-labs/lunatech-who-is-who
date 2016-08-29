@@ -37,7 +37,7 @@ create table "offices" (
 
 insert into "offices" values (1 , 'Rotterdam' , 'Rotterdam' , 'Netherlands' , 'Lunatech Headquarters ');
 insert into "offices" values (2 , 'Paris' , 'Montevrain' , 'France' , 'Lunatech main office in France');
-insert into "offices" values (3 , 'Brussels' , 'Brussels' , 'Belgium' , 'Open in near Future');
+insert into "offices" values (3 , 'Brussels' , 'Brussels' , 'Belgium' , 'Open in Future');
 insert into "offices" values (0 , 'Non' , 'Non Specified' , 'Non Specified' , 'default value');
 
 
