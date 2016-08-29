@@ -1,4 +1,4 @@
-@(person: Form[CreatePersonForm], people: Seq[Person], message:Option[String] = None )(implicit messages: Messages)
+@(person: Form[CreatePersonForm], people: Seq[Person], offices: Map[String,String],message:Option[String] = None )(implicit messages: Messages)
 
 @import helper._
 
@@ -21,23 +21,25 @@
             else
             person.description.toString)
         </td>
-        <td>@form(routes.PersonController.deletePerson(person.id)) {
-            <div class="buttons">
-                <input type="submit" value="Delete Person"/>
-            </div>
-            }
-            @form(routes.PersonController.editPerson(person.id)) {
-            <div class="buttons">
-                <input type="submit" value="Edit Person"/>
-            </div>
-            }
+        <td>
+            <!--@form(routes.PersonController.deletePerson(person.id)) {-->
+            <!--<div class="buttons">-->
+                <!--<input type="submit" value="Delete Person"/>-->
+            <!--</div>-->
+            <!--}-->
+            <!--@form(routes.PersonController.editPerson(person.id)) {-->
+            <!--<div class="buttons">-->
+                <!--<input type="submit" value="Edit Person"/>-->
+            <!--</div>-->
+            <!--}-->
 
-            <!--<a href="@routes.PersonController.editPerson(person.id)"><button>Edit person</button></a>-->
+            <a id="@person.id" href="@routes.PersonController.deletePerson(person.id)"><button>Delete Person</button></a>
+            <a id="@person.id" href="@routes.PersonController.editPerson(person.id)"><button>Edit person</button></a>
         </td>
     </tr>
     }
 </table>
-@personData(person, routes.PersonController.addPerson())
+@personData(person, offices,routes.PersonController.addPerson())
 }
 
 

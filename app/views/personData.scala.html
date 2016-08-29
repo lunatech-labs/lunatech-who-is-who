@@ -1,12 +1,14 @@
-@(person: Form[CreatePersonForm], call: Call )(implicit messages: Messages)
+@(person: Form[CreatePersonForm], offices: Map[String,String],call: Call )(implicit messages: Messages)
 @import helper._
 @form(call,'enctype -> "multipart/form-data") {
 @inputText(person("name"))
 @helper.inputText(person("email"))
+<!--@helper.select(person("selectLocation"), options(Map("1" -> "Paris", "2" -> "Rotterdam")), '_label -> "Select Location")-->
+@helper.select(person("selectLocation"), options(offices), '_label -> "Select Location")
 @textarea(person("description"),args = 'rows -> 15, 'cols -> 50)
 @inputFile(person("photo"))
 @helper.checkbox(field = person("changePhoto"), '_label -> "Set Photo")
 <div class="buttons">
-    <input type="submit" value="Save Person"/>
+    <input id="savePerson" type="submit" value="Save Person"/>
 </div>
 }

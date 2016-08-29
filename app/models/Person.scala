@@ -4,7 +4,7 @@ import play.api.libs.json._
 import play.api.mvc._
 import play.api.libs.functional.syntax._
 
-case class Person(id: Long, name: String, email: String, photo: String, description: String)
+case class Person(id: Long, name: String, email: String, location: Office , photo: String, description: String)
 //case class PersonJson(name: String, email: String, description: String)
 
 object Person {

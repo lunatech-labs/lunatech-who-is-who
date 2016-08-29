@@ -1,7 +1,7 @@
-@(person: Form[CreatePersonForm] , iId: Long )(implicit messages: Messages)
+@(person: Form[CreatePersonForm] , offices: Map[String,String], iId: Long )(implicit messages: Messages)
 @import helper._
 @main("Edit Person") {
 
-@personData(person, routes.PersonController.save(iId))
+@personData(person, offices, routes.PersonController.save(iId))
 
 }

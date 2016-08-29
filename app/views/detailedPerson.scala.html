@@ -4,12 +4,14 @@
 <table id="persons" style="width:100%">
     <tr>
         <th>Name</th>
+        <th>Office</th>
         <th>Email</th>
         <th>Information</th>
         <th>Photo</th>
     </tr>
     <tr>
         <td>@person.name</td>
+        <td>@person.location.name</td>
         <td>@person.email</td>
         <td>@person.description</td>
         <!--<td><img class="photo" src="@routes.PersonController.giveMePicture(person.photo)" alt="your image" onerror="this.src='@routes.Assets.versioned("images/ali.jpeg")'"/></td>-->

@@ -3,7 +3,7 @@ package controllers
 import java.io.File
 import javax.inject._
 
-import dal.PersonRepository
+import dal.{OfficeRepository, PersonRepository}
 import models.RESTPerson
 import play.api.data.Form
 import play.api.data.Forms._
@@ -14,20 +14,50 @@ import play.api.mvc._
 
 import scala.concurrent.{ExecutionContext, Future}
 
-class PersonController @Inject()(repo: PersonRepository, val messagesApi: MessagesApi)
+class PersonController @Inject()(repo: PersonRepository, officesRepo: OfficeRepository, val messagesApi: MessagesApi)
                                 (implicit ec: ExecutionContext) extends Controller with I18nSupport {
 
+  var officesMAPCONST:Map[String, String] = Map.empty
+
+
   /**
+    *
     * The mapping for the person form.
     */
   val personForm: Form[CreatePersonForm] = Form {
     mapping(
       "name" -> nonEmptyText,
       "email" -> email,
+      "selectLocation" -> text,
       "description" -> text,
       "changePhoto" -> boolean
     )(CreatePersonForm.apply)(CreatePersonForm.unapply)
   }
+  /**
+    * The index action.
+    */
+  def index = Action.async {
+        println("Debug: calling list map")
+//    officesRepo.listMap().map( offices =>
+//      println("Debug: 120" + offices.toString()))
+    officesRepo.listMap().flatMap( offices => {
+      println("Debug: ----d20--")
+//    repo.listPersons().map(people =>{
+    repo.listPersons_merge.map(people =>{
+      println("Debug: ----d22--")
+      for (c <- people)
+        println (c.toString)
+      Ok(views.html.index(personForm, people, offices ))})})
+  }
+
+//  def getOffices =  {
+//    println("gegtOffices!!!")
+//    val v = officesRepo.list().map(offices =>
+//      offices)
+//    v
+//  }
+//  val officesList = getOffices
+
 
   // to handle future we need map and async.
   // to handle future future we need flat map.
@@ -55,12 +85,16 @@ class PersonController @Inject()(repo: PersonRepository, val messagesApi: Messag
     )
   }
 
+
+
+
+
   def jsonSave(rESTPerson: RESTPerson):Future[Boolean] ={
       // get person by email
     println("Debug: jsonSave start")
     repo.getByEmail(rESTPerson.email).flatMap {
       case Some(person) =>
-        repo.updatePerson(person.id , rESTPerson.name, rESTPerson.email, "", rESTPerson.description, false).map { number =>
+        repo.updatePerson(person.id , rESTPerson.name, rESTPerson.email,0, "", rESTPerson.description, false).map { number =>
           if (number == 1) {
             println("DEBUG: succeed to update " + number)
             Redirect(routes.PersonController.index())
@@ -76,14 +110,7 @@ class PersonController @Inject()(repo: PersonRepository, val messagesApi: Messag
     }
   }
 
-  /**
-    * The index action.
-    */
-  def index = Action.async {
-    println()
-    repo.list().map(people =>
-      Ok(views.html.index(personForm, people)))
-  }
+
 
 
 
@@ -96,12 +123,14 @@ class PersonController @Inject()(repo: PersonRepository, val messagesApi: Messag
   }
   def editPerson(iId: Long) = Action.async { implicit request =>
     println("Debug: editPerson start")
+    officesRepo.listMap().flatMap( offices =>
     repo.get(iId).map {
       case Some(person) =>
-        val p = CreatePersonForm(person.name, person.email, person.description, false )
-        Ok(views.html.editPerson(personForm.fill(p) , iId))
+        val p = CreatePersonForm(person.name, person.email, person.location.id.toString,person.description, false )
+        Ok(views.html.editPerson(personForm.fill(p) , offices,iId))
       case None => NotFound("Person Not Found")
     }
+    )
   }
 
   def deletePerson(id: Long) = Action.async {
@@ -122,9 +151,9 @@ class PersonController @Inject()(repo: PersonRepository, val messagesApi: Messag
     personForm.bindFromRequest.fold(
       errorForm => {
         println("Debug: Saving edited person")
-
-        repo.list().map(people =>
-          Ok(views.html.editPerson(errorForm, iId: Long)))
+        officesRepo.listMap().flatMap( offices =>
+        repo.listPersons().map(people =>
+          Ok(views.html.editPerson(errorForm, offices, iId: Long))))
       },
       person => {
         repo.checkEmails(person.email, iId).flatMap {
@@ -139,9 +168,9 @@ class PersonController @Inject()(repo: PersonRepository, val messagesApi: Messag
           val temp = if (person.setphoto)
             uploadFile(request, person.setphoto)
           else
-            ""
-
-          repo.updatePerson(iId: Long , person.name, person.email, temp, person.description, person.setphoto).map { number =>
+            play.Play.application.configuration.getString("default_photo")
+          println("Debug -- before update person" + person.name+ person.email+ person.location  )
+          repo.updatePerson(iId: Long , person.name, person.email, person.location.toLong , temp, person.description, person.setphoto).map { number =>
             if (number == 1) {
               println("DEBUG: succeed to update " + number)
 
@@ -169,14 +198,18 @@ class PersonController @Inject()(repo: PersonRepository, val messagesApi: Messag
     * This is asynchronous, since we're invoking the asynchronous methods on PersonRepository.
     */
   def addPerson = Action.async(parse.multipartFormData) { implicit request =>
+    println("DEBUG: start addPerson")
     // Bind the form first, then fold the result, passing a function to handle errors, and a function to handle succes.
     personForm.bindFromRequest.fold(
       // The error function. We return the index page with the error form, which will render the errors.
       // We also wrap the result in a successful future, since this action is synchronous, but we're required to return
       // a future because the person creation function returns a future.
+
+
       errorForm => {
-        repo.list().map(people =>
-          Ok(views.html.index(errorForm, people)))
+    officesRepo.listMap().flatMap(offices =>
+        repo.listPersons().map(people =>
+          Ok(views.html.index(errorForm, people, offices))))
       },
       // There were no errors in the from, so create the person.
       // at this point we have successful person object from html strings name and age
@@ -192,7 +225,7 @@ class PersonController @Inject()(repo: PersonRepository, val messagesApi: Messag
             println("DEBUG: New person")
 
             val temp = uploadFile(request)
-            repo.create(person.name, person.email, temp, person.description).map { person =>
+            repo.create_person(person.name, person.email, person.location , temp, person.description).map { person =>
               println(person.toString)
               // If successful, we simply redirect to the index page.
               Redirect(routes.PersonController.index())
@@ -223,8 +256,8 @@ class PersonController @Inject()(repo: PersonRepository, val messagesApi: Messag
         picture.ref.moveTo(file)
         picture.filename
       }
-      else "ali.jpeg"
-    }.getOrElse("ali.jpeg")
+      else play.Play.application.configuration.getString("default_photo")
+    }.getOrElse(play.Play.application.configuration.getString("default_photo"))
   }
 
   /**
@@ -232,14 +265,14 @@ class PersonController @Inject()(repo: PersonRepository, val messagesApi: Messag
     */
   def getPersons = Action.async {
     //    println("debug ---1---")
-    repo.list().map { people =>
+    repo.listPersons().map { people =>
       Ok(Json.toJson(people))
     }
   }
 // candidate for removal - not used
   def getPersons(email: String) = Action.async {
     //    println("debug ---1---")
-    repo.list().map { people =>
+    repo.listPersons().map { people =>
       Ok(Json.toJson(people))
     }
   }
@@ -255,10 +288,10 @@ class PersonController @Inject()(repo: PersonRepository, val messagesApi: Messag
 
   def giveMePicture(name: String) = Action {
     val myFile: File =
-    if (!(name == "ali.jpeg" || name == ""))
+    if (!(name == play.Play.application.configuration.getString("default_photo") || name == ""))
       new File(play.Play.application.configuration.getString("pictures_path") + name)
     else
-      new File("public/images/ali.jpeg")
+      new File("public/images/"+play.Play.application.configuration.getString("default_photo"))
     Ok.sendFile(myFile)
   }
 
@@ -271,20 +304,20 @@ class PersonController @Inject()(repo: PersonRepository, val messagesApi: Messag
   * in a different way to your models.  In this case, it doesn't make sense to have an id parameter in the form, since
   * that is generated once it's created.
   */
-case class CreatePersonForm(name: String, email: String, description: String, setphoto: Boolean)
+case class CreatePersonForm(name: String, email: String, location: String, description: String, setphoto: Boolean)
 
-object CreatePersonForm {
-  //this is an example on how to have custom apply
-  def newApply(name: String, email: String, description: String) = {
-    CreatePersonForm(name, email, description, true)
-  }
-  def newUApply(ali: CreatePersonForm) = {
-    Some(ali.name, ali.email, ali.description)
-  }
-
-  //  implicit val personRead :Reads[Person]= (
-  //      (JsPath \ "name").read[String] and
-  //      (JsPath \ "email").read[String] and
-  //      (JsPath \ "description").read[String]
-  //    )(Person.apply _)
-}
+//object CreatePersonForm {
+//  //this is an example on how to have custom apply
+//  def newApply ( name: String, email: String, description: String) = {
+//    CreatePersonForm( name, email, selectLocation ,description, true)
+//  }
+//  def newUApply(ali: CreatePersonForm) = {
+//    Some(ali.name, ali.email, ali.location,ali.description)
+//  }
+//
+//  //  implicit val personRead :Reads[Person]= (
+//  //      (JsPath \ "name").read[String] and
+//  //      (JsPath \ "email").read[String] and
+//  //      (JsPath \ "description").read[String]
+//  //    )(Person.apply _)
+//}
