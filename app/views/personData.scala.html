@@ -4,6 +4,7 @@
 @inputText(person("name"))
 @helper.inputText(person("email"))
 <!--@helper.select(person("selectLocation"), options(Map("1" -> "Paris", "2" -> "Rotterdam")), '_label -> "Select Location")-->
+<!--@helper.select(person("selectLocation"), options(offices), '_label -> "Select Location",'_default -> "First Available")-->
 @helper.select(person("selectLocation"), options(offices), '_label -> "Select Location")
 @textarea(person("description"),args = 'rows -> 15, 'cols -> 50)
 @inputFile(person("photo"))

@@ -18,9 +18,6 @@ object RESTPerson {
   def doSomething (rESTPerson: RESTPerson) ={
     println("we got this object in json rest request:")
     println(rESTPerson.toString)
-
-
-
   }
 
 

@@ -1,6 +1,5 @@
 # --- !Ups
 
-
 --be careful here
 --we have line for sqlite (on local machine for development)
 --and line for prostgres (on the cloud)
@@ -15,9 +14,6 @@ create table "people" (
   "description" varchar
 );
 
-
-
-
 --be careful here
 --we have line for sqlite (on local machine for development)
 --and line for prostgres (on the cloud)
@@ -31,7 +27,6 @@ create table "offices" (
   "remarks" varchar
 );
 
-
 insert into "offices" values (1 , 'Rotterdam' , 'Rotterdam' , 'Netherlands' , 'Lunatech Headquarters ');
 insert into "offices" values (2 , 'Paris' , 'Montevrain' , 'France' , 'Lunatech main office in France');
 insert into "offices" values (3 , 'Brussels' , 'Brussels' , 'Belgium' , 'Open in Future');
@@ -41,5 +36,3 @@ insert into "offices" values (0 , 'Non' , 'Non Specified' , 'Non Specified' , 'd
 
 drop table "people";
 drop table "offices";
-
-

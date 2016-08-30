@@ -79,7 +79,7 @@ class PersonController @Inject()(repo: PersonRepository, officesRepo: OfficeRepo
     println("Debug: jsonSave start")
     repo.getByEmail(rESTPerson.email).flatMap {
       case Some(person) =>
-        repo.updatePerson(person.id , rESTPerson.name, rESTPerson.email,0, "", rESTPerson.description, false).map { number =>
+        repo.updatePerson(person.id , rESTPerson.name, rESTPerson.email,person.location.id, "", rESTPerson.description, false).map { number =>
           if (number == 1) {
             println("DEBUG: succeed to update " + number)
             Redirect(routes.PersonController.index())
@@ -128,7 +128,7 @@ class PersonController @Inject()(repo: PersonRepository, officesRepo: OfficeRepo
   }
 
   def save (iId: Long) = Action.async(parse.multipartFormData) { implicit request =>
-    //    println("Debug: start save")
+    println("Debug: start save")
     personForm.bindFromRequest.fold(
       errorForm => {
 //                println("Debug: Saving edited person")
@@ -137,6 +137,7 @@ class PersonController @Inject()(repo: PersonRepository, officesRepo: OfficeRepo
             Ok(views.html.editPerson(errorForm, offices, iId: Long))))
       },
       person => {
+        println(person.toString)
         repo.checkEmails(person.email, iId).flatMap {
           case Some(existingEmail) => {
             //            println("DEBUG: from edit:  email already exists")
@@ -185,6 +186,11 @@ class PersonController @Inject()(repo: PersonRepository, officesRepo: OfficeRepo
       // at this point we have successful person object from html strings name and age
       person => {
         // check if person already exists
+        println ( "DEBUG " + person.toString )
+        if (person.location == None)
+          println ("nulll")
+        else if (person.location.isEmpty)
+          println ("empty")
         repo.checkEmails(person.email).flatMap {
           case Some(existingEmail) => {
             //            println("DEBUG: email already exists")
