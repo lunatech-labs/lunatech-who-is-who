@@ -79,7 +79,7 @@ Error Response:     404 Not Found.<br />
                     }<br />
                     This will happen when the request pass email that does not exits in the database.<br />
 
-                    Play default response when you do not provide the requerd parameter: email (error in routing).<br />
+                    Play default response when you do not provide the required parameter: email (error in routing).<br />
 Sample Call:        curl --request GET   http://localhost:9000/api/person/ali.hassan@gmail.com
 <br />
 
