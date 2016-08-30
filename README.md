@@ -16,7 +16,7 @@ You can fork and clone the app from Git repository on your local machine, then:
 sbt, and run.
 
 To be able to run the application you need a database. in conf/application.conf we provide several examples on possible DB configurations, including: in memory DB H2, SQLite, PostgreSQL.
-For H2 DB: you can un-comment and use directly.
+For H2 DB: you can un-comment and use directly.\n
 For SQLite: this is file based DB.
             You need to provide empty .db file in location you specify in the url configuration
 For PostgreSQL: this is server based DB.
