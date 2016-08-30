@@ -73,10 +73,10 @@ Data Params: NON
 Success Response:   Code: 200
                     Content: {"id":3,"name":"Ali Hassan","email":"ali.hassan@gmail.com","location":{"id":2,"name":"Paris","city":"Montevrain","country":"France","remarks":"Lunatech main office in France"},"photo":"file000541344089.jpg","description":"changed from jsonnn"}
 
-Error Response:     404 Not Found.
+Error Response:     404 Not Found.<br />
                     {
                       "Error": "Person Not Found"
-                    }
+                    }<br />
                     This will happen when the request pass email that does not exits in the database.<br />
 
                     Play default response when you do not provide the requerd parameter: email (error in routing).<br />
