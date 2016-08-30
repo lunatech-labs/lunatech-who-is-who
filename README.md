@@ -62,6 +62,7 @@ Success Response:   Code: 200
 
 Error Response: NON (should succeed always unless there is network problem or the app is not up and running)
 Sample Call:     curl --request GET  http://localhost:9000/api/persons
+<br />
 
 **
 Title: Get a single person from the database
@@ -80,6 +81,7 @@ Error Response:     404 Not Found.
 
                     Play default response when you do not provide the requerd parameter: email (error in routing).<br />
 Sample Call:        curl --request GET   http://localhost:9000/api/person/ali.hassan@gmail.com
+<br />
 
 **
 Title: Edit specific person in the database
@@ -106,3 +108,4 @@ Error Response:     400 Bad Request
                     }
                     This will happen when the request pass email that does not exits in the database.
 Sample Call:        curl --request POST  --header "Content-type: application/json"   --data '{"id":16,"name":"Ali Hassan","email":"ali.hassan@lunatech.com","description":"changed from json"}'   http://localhost:9000/api/person/edit
+<br />
