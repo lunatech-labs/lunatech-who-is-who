@@ -3,8 +3,10 @@ package dal
 import javax.inject.{Inject, Singleton}
 
 import models.Office
+import play.api.Logger
 import play.api.db.slick.{DatabaseConfigProvider, HasDatabaseConfigProvider}
 import slick.driver.JdbcProfile
+
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.collection.immutable.Map
 import scala.concurrent.{ExecutionContext, Future}
@@ -61,7 +63,7 @@ class OfficeRepository @Inject()(protected val dbConfigProvider: DatabaseConfigP
     val mapResult = scala.collection.immutable.Map[String, String]()
     seqresult.map {officeseq =>
       if (officeseq.isEmpty) {
-        println("DEBUG EMPTY ----100----- ")
+        Logger.debug("DEBUG EMPTY ----100----- ")
       }
     }
     val res = seqresult.map {
