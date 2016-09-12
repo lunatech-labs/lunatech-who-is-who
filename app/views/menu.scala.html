@@ -1,0 +1,20 @@
+@(active: String, countAll: Int, countRotterdam: Int, countMontevrain: Int)
+<div class="col-md-3">
+  <a class="btn btn-primary btn-block margin-bottom" data-toggle="modal" data-target="#myModal">Add new person</a>
+  <div class="box box-solid">
+    <div class="box-header with-border">
+      <h3 class="box-title">Offices</h3>
+      <div class="box-tools">
+        <button class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i></button>
+      </div>
+    </div>
+    <div class="box-body no-padding">
+      <ul class="nav nav-pills nav-stacked">
+        <li @if(active == "all") {class="active"}><a href="@routes.PersonController.index()"><i class="fa fa-server"></i> All <span class="label label-primary pull-right">@countAll</span></a></li>
+        <li @if(active == "rotterdam") {class="active"}><a href="@routes.PersonController.searchByLocation("rotterdam")"><i class="fa fa-users"></i> Rotterdam <span class="label label-primary pull-right">@countRotterdam</span></a></li>
+        <li @if(active == "montevrain") {class="active"}><a href="@routes.PersonController.searchByLocation("montevrain")"><i class="fa fa-cubes"></i> Montévrain <span class="label label-primary pull-right">@countMontevrain</span></a></li>
+      </ul>
+    </div><!-- /.box-body -->
+  </div><!-- /. box -->
+
+</div><!-- /.col -->

@@ -1,47 +1,166 @@
-@(person: Form[CreatePersonForm], people: Seq[Person], offices: Map[String,String],message:Option[String] = None )(implicit messages: Messages)
-
-@import helper._
+@(form: Form[Person], people: Seq[Person], countAll: Int, countRotterdam: Int, countMontevrain: Int, office: String = "all")(implicit messages: Messages)
 
 @main("Welcome to WhoIsWho") {
 
 
-<table id="persons" >
-    <tr>
-        <th>Name</th>
-        <th>Photo</th>
-        <th>Short Description</th>
-        <th>Actions</th>
-    </tr>
-    @for(person <- people) {
-    <tr>
-        <td><a href='@routes.PersonController.getDetailedPerson(person.id)'>@person.name</a></td>
-        <td><img class="photo" src="@routes.PersonController.giveMePicture(person.photo)" alt="your image" onerror="this.src='@routes.Assets.versioned("images/ali.jpeg")'"/></td>
-        <td>@(if (person.description.toString.length>50)
-            person.description.toString.take(50)+"..."
-            else
-            person.description.toString)
-        </td>
-        <td>
-            <!--@form(routes.PersonController.deletePerson(person.id)) {-->
-            <!--<div class="buttons">-->
-                <!--<input type="submit" value="Delete Person"/>-->
-            <!--</div>-->
-            <!--}-->
-            <!--@form(routes.PersonController.editPerson(person.id)) {-->
-            <!--<div class="buttons">-->
-                <!--<input type="submit" value="Edit Person"/>-->
-            <!--</div>-->
-            <!--}-->
+  <!-- Content Wrapper. Contains page content -->
+    <div class="content-wrapper" style="margin-left:0px">
+      <!-- Content Header (Page header) -->
+      <section class="content-header">
 
-            <a id="@person.id" href="@routes.PersonController.deletePerson(person.id)"><button>Delete Person</button></a>
-            <a id="@person.id" href="@routes.PersonController.editPerson(person.id)"><button>Edit person</button></a>
 
-        </td>
-    </tr>
-    }
-</table>
-@personData(person, offices,routes.PersonController.addPerson())
+      </section>
+
+      <!-- Main content -->
+      <section class="content">
+        <div class="row">
+          @menu(office, countAll, countRotterdam, countMontevrain)
+          <div class="col-md-9">
+            <div class="box box-primary">
+              <div class="box-header with-border">
+
+
+                <h3 class="box-title">People in Lunatech</h3>
+                <div class="box-tools pull-right">
+                  <div class="has-feedback">
+                    <input type="text" class="form-control input-sm" placeholder="Search">
+                    <span class="glyphicon glyphicon-search form-control-feedback"></span>
+                  </div>
+                </div><!-- /.box-tools -->
+              </div><!-- /.box-header -->
+
+
+              <div class="box-body no-padding">
+
+                <div class="table-responsive mailbox-messages">
+                  <table class="table table-hover table-striped">
+                    <tbody>
+                      @for(person <- people) {
+                      <tr>
+                          <td><a href="@controllers.routes.PersonController.edit(person.id.get)">@person.name</a></td>
+                          <td><a href="">@person.phone</a></td>
+                          <td><img style="max-width:140px" class="photo" src="@controllers.routes.PersonController.getImage(person.photo.getOrElse(""))"  onerror="this.src='@routes.Assets.versioned("images/ali.jpeg")'"/></td>
+                          <td>
+                            @person.description.toString
+                          </td>
+                        </tr>
+                      }
+
+
+                    </tbody>
+                  </table><!-- /.table -->
+                </div><!-- /.mail-box-messages -->
+              </div><!-- /.box-body -->
+              <div class="box-footer no-padding">
+
+              </div>
+            </div><!-- /. box -->
+          </div><!-- /.col -->
+        </div><!-- /.row -->
+      </section><!-- /.content -->
+
+      <!-- Modal -->
+      <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+
+        <div class="modal-dialog" role="document">
+          <div class="modal-content">
+            <div class="modal-header">
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+              <h4 class="modal-title" id="myModalLabel">Add an employee</h4>
+            </div>
+            <div class="modal-body">
+              @if(form("id").value) {
+                <form id="newPerson" action="@routes.PersonController.update(form("id").value.get.toLong)" method="POST" enctype="multipart/form-data">
+              } else {
+                <form id="newPerson" action="@routes.PersonController.create()" method="POST" enctype="multipart/form-data">
+              }
+                <input type="hidden" name="id" value="@form("id").value">
+                <div class="form-group @if(form.errors("name").nonEmpty){has-error}">
+                  <label for="fullname">Full name</label>
+                  <input type="text" class="form-control" name="name" id="fullname" value="@form("name").value" placeholder="Fullname">
+                  @if(form.errors("name").nonEmpty){ <span class="help-block"> @form.errors("name").map(_.messages.map(messages(_))).flatten.mkString(",") </span> }
+                </div>
+                <div class="form-group @if(form.errors("email").nonEmpty){has-error}">
+                  <label for="email">Email</label>
+                  <input type="email" class="form-control" name="email" id="email" value="@form("email").value" placeholder="Email">
+                  @if(form.errors("email").nonEmpty){ <span class="help-block"> @form.errors("email").map(_.messages.map(messages(_))).flatten.mkString(",") </span> }
+                </div>
+                <div class="form-group @if(form.errors("phone").nonEmpty){has-error}">
+                  <label for="phone">Phone</label>
+                  <input type="text" class="form-control" name="phone" id="phone" value="@form("phone").value" placeholder="Phone">
+                  @if(form.errors("phone").nonEmpty){ <span class="help-block"> @form.errors("phone").map(_.messages.map(messages(_))).flatten.mkString(",") </span> }
+                </div>
+                <div class="form-group @if(form.errors("location").nonEmpty){has-error}">
+                  <select id="location" name="location" class="form-control"
+                value="" />
+                    <option @if(form("location").value.getOrElse("")=="rotterdam"){selected} value="rotterdam">Rotterdam</option>
+                    <option @if(form("location").value.getOrElse("")=="montevrain"){selected} value="montevrain">Montevrain</option>
+                  </select>
+            </select>
+
+                </div>
+                <div class="form-group @if(form.errors("decription").nonEmpty){has-error}">
+                  <label for="description">Description</label>
+                  <textarea style="height:220px" type="text" class="form-control" name="description" id="description" placeholder="Description">@form("description").value</textarea>
+                  @if(form.errors("description").nonEmpty){ <span class="help-block"> @form.errors("description").map(_.messages.map(messages(_))).flatten.mkString(",") </span> }
+                </div>
+              </form>
+
+                <div class="form-group ">
+
+                  <form id="mydropzone" action="/images" class="dropzone dz-clickable dz-started" method="POST">
+                      <input type="hidden" name="id" value="@form("id").value">
+                  </form>
+
+                  <ul id="photos" class="files">
+                    <li><img style="max-width:440px" class="photo" src="@controllers.routes.PersonController.getImage(form("photo").value.getOrElse(""))"  onerror="this.src='@routes.Assets.versioned("images/ali.jpeg")'"/></li>
+                  </ul>
+
+               </div>
+
+
+
+            </div>
+            <div class="modal-footer">
+              @if(form("id").value) {
+                <button class="btn btn-danger">Delete person</button>
+                <button onclick="$('#newPerson').submit();" class="btn btn-primary">Update person</button>
+              } else {
+                <button onclick="$('#newPerson').submit();" class="btn btn-primary">Add person</button>
+
+              }
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+    <script>
+      jQuery(function() {
+        @if(form.hasErrors || form.value.isDefined) {
+          jQuery('#myModal').modal('show');
+        }
+        Dropzone.autoDiscover = false;
+        var myDropzone = new Dropzone("#mydropzone", { url: "/images?id=@form("id").value",
+          previewsContainer: "#photos",
+          createImageThumbnails: false,
+          init: function() {
+             // Add input hidden input field
+             this.on("complete", function(file) {
+               //$("#photos li").remove();
+               $("#photo").append('<li><div class="dz-preview dz-file-preview"><div class="dz-details"><img style="max-width:440px" class="photo" data-dz-thumbnail /></div></div></li>');
+               var reader = new FileReader();
+                reader.onload = function (e) {
+                    $('#photos img.photo').attr('src', e.target.result);
+                }
+                reader.readAsDataURL(file);
+              });
+            },
+
+          dictDefaultMessage: "<div style=\"text-align:center\">Drop your picture here<br><i style='font-size: 32pt' class=\"fa fa-cloud-upload\"></i><br></div>",
+          previewTemplate: '<li><div class="dz-preview dz-file-preview"><div class="dz-details"><img style="max-width:440px" class="photo" data-dz-thumbnail /></div></div></li>'
+        });
+      });
+
+    </script>
 }
-
-
-
