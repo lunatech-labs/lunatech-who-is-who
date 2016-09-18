@@ -147,7 +147,6 @@ class PersonController @Inject()(repo: PersonRepository, val messagesApi: Messag
 
   def getImage(id: String) = IsAuthenticated { username => implicit request =>
     val file = new File(configuration.getString("pictures.path").getOrElse("/tmp/") + id)
-    println("get file " + file)
     Future.successful(Ok.sendFile(
       content= file,
       fileName = _ => id + ".png"))
