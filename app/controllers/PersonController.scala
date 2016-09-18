@@ -171,7 +171,7 @@ class PersonController @Inject()(repo: PersonRepository, val messagesApi: Messag
       val state: String = new BigInteger(130, new SecureRandom()).toString(32)
       Ok(views.html.login(clientId)).withSession("state" -> state)
     } else {
-      Redirect(routes.PersonController.index).withSession("email" -> "developer@laliunatech.com")
+      Redirect(routes.PersonController.index).withSession("email" -> "developer@lunatech.com")
     }
   }
 
