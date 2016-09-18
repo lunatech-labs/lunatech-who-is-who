@@ -33,6 +33,7 @@ class PersonRepository @Inject()(protected val dbConfigProvider: DatabaseConfigP
     /** The name column */
     def name = column[String]("name")
     def email = column[String]("email")
+    def role = column[String]("role")
     def phone = column[String]("phone")
     def location = column[String]("location")
     def photo = column[String]("photo")
@@ -45,11 +46,11 @@ class PersonRepository @Inject()(protected val dbConfigProvider: DatabaseConfigP
       * In this case, we are simply passing the id, name and page parameters to the Person case classes
       * apply and unapply methods.
       */
-    def * = (id, name, email, phone, location, photo, description).shaped <> (
-      { case (id, name, email, phone, location, photo, description) =>
-        Person(Option(id), name, email, Option(phone), location, Option(photo), description)
+    def * = (id, name, email, role, phone, location, photo, description).shaped <> (
+      { case (id, name, email, role, phone, location, photo, description) =>
+        Person(Option(id), name, email, role, Option(phone), location, Option(photo), description)
       }, {
-        p: Person => Some((p.id.getOrElse(-1L), p.name, p.email, p.phone.getOrElse(""), p.location, p.photo.getOrElse(""), p.description))
+        p: Person => Some((p.id.getOrElse(-1L), p.name, p.email, p.role, p.phone.getOrElse(""), p.location, p.photo.getOrElse(""), p.description))
       })
   }
 
@@ -110,8 +111,8 @@ class PersonRepository @Inject()(protected val dbConfigProvider: DatabaseConfigP
   }
 
   def update(person: Person): Future[Int] = {
-    val q = for {c <- people if c.id === person.id} yield (c.name, c.email, c.phone, c.location, c.description)
-    val updateAction = q.update(person.name, person.email, person.phone.getOrElse(""), person.location, person.description)
+    val q = for {c <- people if c.id === person.id} yield (c.name, c.email, c.role, c.phone, c.location, c.description)
+    val updateAction = q.update(person.name, person.email, person.role, person.phone.getOrElse(""), person.location, person.description)
     val sql = q.updateStatement
     db.run(updateAction)
   }

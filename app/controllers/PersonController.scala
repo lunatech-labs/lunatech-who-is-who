@@ -37,6 +37,7 @@ class PersonController @Inject()(repo: PersonRepository, val messagesApi: Messag
       "id" -> optional(longNumber),
       "name" -> nonEmptyText,
       "email" -> email,
+      "role" -> nonEmptyText,
       "phone" -> optional(text),
       "location" -> text,
       "photo" -> optional(text),
@@ -45,7 +46,7 @@ class PersonController @Inject()(repo: PersonRepository, val messagesApi: Messag
   }
 
   def all() = IsAuthenticated { username => implicit request =>
-    search(repo.all())
+    search(username, repo.all())
   }
 
   def index() = IsAuthenticated { username => implicit request =>
@@ -57,17 +58,17 @@ class PersonController @Inject()(repo: PersonRepository, val messagesApi: Messag
     */
   def searchByLocation(office: String) = IsAuthenticated { username => implicit request =>
 
-    search(repo.findByLocation(office), office)
+    search(username, repo.findByLocation(office), office)
   }
 
-  private def search(p: Future[Seq[Person]], office: String = "all") = {
+  private def search(username: String, p: Future[Seq[Person]], office: String = "all") = {
     for {
       people <- p
       countAll <- repo.count()
       countRotterdam <- repo.countByLocation("rotterdam")
       countMontevrain <- repo.countByLocation("montevrain")
     } yield {
-        Ok(views.html.index(personForm, people, countAll, countRotterdam, countMontevrain, office))
+        Ok(views.html.index(username, personForm, people, countAll, countRotterdam, countMontevrain, office))
     }
   }
 
@@ -86,7 +87,7 @@ class PersonController @Inject()(repo: PersonRepository, val messagesApi: Messag
       countRotterdam <- repo.countByLocation("rotterdam")
       countMontevrain <- repo.countByLocation("montevrain")
     } yield {
-        Ok(views.html.index(personForm.fill(person.get), people, countAll, countRotterdam, countMontevrain))
+        Ok(views.html.index(username, personForm.fill(person.get), people, countAll, countRotterdam, countMontevrain))
     }
 
   }
@@ -100,7 +101,7 @@ class PersonController @Inject()(repo: PersonRepository, val messagesApi: Messag
           countRotterdam <- repo.countByLocation("rotterdam")
           countMontevrain <- repo.countByLocation("montevrain")
         } yield {
-            BadRequest(views.html.index(errorForm, people, countAll, countRotterdam, countMontevrain))
+            BadRequest(views.html.index(username, errorForm, people, countAll, countRotterdam, countMontevrain))
         }
       },
       person => {
@@ -124,7 +125,7 @@ class PersonController @Inject()(repo: PersonRepository, val messagesApi: Messag
           countRotterdam <- repo.countByLocation("rotterdam")
           countMontevrain <- repo.countByLocation("montevrain")
         } yield {
-            BadRequest(views.html.index(errorForm, people, countAll, countRotterdam, countMontevrain))
+            BadRequest(views.html.index(username, errorForm, people, countAll, countRotterdam, countMontevrain))
         }
       },
       person => {
