@@ -14,10 +14,13 @@ POST       /person                      controllers.PersonController.create
 POST       /person/:id                  controllers.PersonController.update(id:Long)
 GET        /person/:id                  controllers.PersonController.edit(id:Long)
 DELETE     /person/:id/delete           controllers.PersonController.delete(id:Long)
-
 GET        /                            controllers.PersonController.index()
-GET        /:office                     controllers.PersonController.searchByLocation(office: String)
+GET        /persons                     controllers.PersonController.all()
+GET        /persons/:office             controllers.PersonController.searchByLocation(office: String)
 
+
+# REST api
+GET       /api/v1/persons               controllers.PersonController.apiAll()
 
 # Map static resources from the /public folder to the /assets URL path
 GET         /assets/*file               controllers.Assets.versioned(path="/public", file: Asset)

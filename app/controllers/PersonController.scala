@@ -44,8 +44,12 @@ class PersonController @Inject()(repo: PersonRepository, val messagesApi: Messag
     )(Person.apply)(Person.unapply)
   }
 
-  def index() = IsAuthenticated { username => implicit request =>
+  def all() = IsAuthenticated { username => implicit request =>
     search(repo.all())
+  }
+
+  def index() = IsAuthenticated { username => implicit request =>
+    Future.successful(Redirect(routes.PersonController.all()))
   }
 
   /**
@@ -155,7 +159,7 @@ class PersonController @Inject()(repo: PersonRepository, val messagesApi: Messag
   /**
     * A REST endpoint that gets all the people as JSON.
     */
-  def all() = Action.async {
+  def apiAll() = Action.async {
     repo.all().map { people =>
       Ok(Json.toJson(people))
     }
