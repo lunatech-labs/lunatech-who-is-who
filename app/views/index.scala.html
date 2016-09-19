@@ -39,7 +39,57 @@
                       <tr>
                           <td><a href="@controllers.routes.PersonController.edit(person.id.get)">@person.name</a></td>
                           <td><a href="">@person.phone</a></td>
-                          <td><img style="max-width:140px" class="photo" src="@controllers.routes.PersonController.getImage(person.photo.getOrElse(""))"  onerror="this.src='@routes.Assets.versioned("images/ali.jpeg")'"/></td>
+                          <td class="pitch">
+
+
+                            <img id="photos-@person.id.get" style="max-width:140px" class="photo" src="@controllers.routes.PersonController.getImage(person.photo.getOrElse(""))" onerror="this.src='@routes.Assets.versioned("images/unknown_user.png")'" />
+
+                            <form id="mydropzone-@person.id.get" action="/images" class="dropzone dz-clickable dz-started" method="POST">
+                                <input type="hidden" name="id" value="@person.id.get">
+                            </form>
+                            <style>
+                            .pitch:hover .dropzone {
+                              opacity:1;
+                            }
+                            .pitch:hover .photo {
+                              opacity:0.7;
+                            }
+
+                            .pitch {
+                              position:relative;
+                            }
+
+                            .dropzone {
+                              position: absolute;
+                              bottom: 0;left: 0; top: 20px; right: 0;
+                              opacity:0;
+                            }
+                            </style>
+                            <script>
+                              jQuery(function() {
+                            Dropzone.autoDiscover = false;
+                            var myDropzone = new Dropzone("#mydropzone-@person.id.get", { url: "/images?id=@person.id.get",
+                              previewsContainer: "#photos-@person.id.get",
+                              createImageThumbnails: false,
+                              init: function() {
+                                 // Add input hidden input field
+                                 this.on("complete", function(file) {
+                                   //$("#photos li").remove();
+                                   $("#photo").append('<li><div class="dz-preview dz-file-preview"><div class="dz-details"><img style="max-width:440px" class="photo" data-dz-thumbnail /></div></div></li>');
+                                   var reader = new FileReader();
+                                    reader.onload = function (e) {
+                                        $('#photos img.photo').attr('src', e.target.result);
+                                    }
+                                    reader.readAsDataURL(file);
+                                  });
+                                },
+
+                              dictDefaultMessage: "<div style=\"text-align:center\">Drop your picture here<br><i style='font-size: 32pt' class=\"fa fa-cloud-upload\"></i><br></div>",
+                              previewTemplate: '<li><div class="dz-preview dz-file-preview"><div class="dz-details"><img style="max-width:440px" class="photo" data-dz-thumbnail /></div></div></li>'
+                            });
+                          });
+                          </script>
+                          </td>
                           <td><p style="white-space:pre-line">@person.description.toString</p>
                           </td>
                         </tr>
@@ -110,19 +160,6 @@
                 </div>
               </form>
 
-                <div class="form-group ">
-
-                  <form id="mydropzone" action="/images" class="dropzone dz-clickable dz-started" method="POST">
-                      <input type="hidden" name="id" value="@form("id").value">
-                  </form>
-
-                  <ul id="photos" class="files">
-                    <li><img style="max-width:440px" class="photo" src="@controllers.routes.PersonController.getImage(form("photo").value.getOrElse(""))"  onerror="this.src='@routes.Assets.versioned("images/ali.jpeg")'"/></li>
-                  </ul>
-
-               </div>
-
-
 
             </div>
             <div class="modal-footer">
@@ -144,27 +181,12 @@
         @if(form.hasErrors || form.value.isDefined) {
           jQuery('#myModal').modal('show');
         }
-        Dropzone.autoDiscover = false;
-        var myDropzone = new Dropzone("#mydropzone", { url: "/images?id=@form("id").value",
-          previewsContainer: "#photos",
-          createImageThumbnails: false,
-          init: function() {
-             // Add input hidden input field
-             this.on("complete", function(file) {
-               //$("#photos li").remove();
-               $("#photo").append('<li><div class="dz-preview dz-file-preview"><div class="dz-details"><img style="max-width:440px" class="photo" data-dz-thumbnail /></div></div></li>');
-               var reader = new FileReader();
-                reader.onload = function (e) {
-                    $('#photos img.photo').attr('src', e.target.result);
-                }
-                reader.readAsDataURL(file);
-              });
-            },
+        // When model close
+        $('#myModal').on('hidden.bs.modal', function (e) {
+           window.location.href = "/";
+        })
 
-          dictDefaultMessage: "<div style=\"text-align:center\">Drop your picture here<br><i style='font-size: 32pt' class=\"fa fa-cloud-upload\"></i><br></div>",
-          previewTemplate: '<li><div class="dz-preview dz-file-preview"><div class="dz-details"><img style="max-width:440px" class="photo" data-dz-thumbnail /></div></div></li>'
-        });
+
       });
-
     </script>
 }
