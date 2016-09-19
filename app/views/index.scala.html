@@ -75,10 +75,10 @@
                                  // Add input hidden input field
                                  this.on("complete", function(file) {
                                    //$("#photos li").remove();
-                                   $("#photo").append('<li><div class="dz-preview dz-file-preview"><div class="dz-details"><img style="max-width:440px" class="photo" data-dz-thumbnail /></div></div></li>');
                                    var reader = new FileReader();
                                     reader.onload = function (e) {
-                                        $('#photos img.photo').attr('src', e.target.result);
+                                      console.log("updating @person.id.get");
+                                        $('#photos-@person.id.get').attr('src', e.target.result);
                                     }
                                     reader.readAsDataURL(file);
                                   });
