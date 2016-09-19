@@ -118,7 +118,7 @@
               <h4 class="modal-title" id="myModalLabel">Add an employee</h4>
             </div>
             <div class="modal-body">
-              @if(form("id").value) {
+              @if(form("id").value.getOrElse("") != "") {
                 <form id="newPerson" action="@routes.PersonController.update(form("id").value.get.toLong)" method="POST" enctype="multipart/form-data">
               } else {
                 <form id="newPerson" action="@routes.PersonController.create()" method="POST" enctype="multipart/form-data">
@@ -163,7 +163,7 @@
 
             </div>
             <div class="modal-footer">
-              @if(form("id").value) {
+              @if(form("id").value.getOrElse("") != "") {
                 <button class="btn btn-danger">Delete person</button>
                 <button onclick="$('#newPerson').submit();" class="btn btn-primary">Update person</button>
               } else {
