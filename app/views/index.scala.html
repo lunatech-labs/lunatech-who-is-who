@@ -23,7 +23,7 @@
                 <h3 class="box-title">People in Lunatech</h3>
                 <div class="box-tools pull-right">
                   <div class="has-feedback">
-                    <input type="text" class="form-control input-sm" placeholder="Search">
+                    <input id="search" type="text" class="form-control input-sm" placeholder="Search">
                     <span class="glyphicon glyphicon-search form-control-feedback"></span>
                   </div>
                 </div><!-- /.box-tools -->
@@ -185,7 +185,16 @@
         $('#myModal').on('hidden.bs.modal', function (e) {
            window.location.href = "/";
         })
-
+        $("#search").on('keyup', function(e) {
+          var query = $("#search").val();
+          console.log(query);
+          // Look into our table for matching name and hide the rest
+          $(".table tbody tr").hide();
+          $(".table tbody td:first-child").filter(function() {
+            console.log($(this).text().toLowerCase());
+            return $(this).text().toLowerCase().indexOf(query) !== -1;
+          }).parent().show();
+        });
 
       });
     </script>
