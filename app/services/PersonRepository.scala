@@ -76,11 +76,11 @@ class PersonRepository @Inject()(protected val dbConfigProvider: DatabaseConfigP
     * List all the people in the database.
     */
   def all(): Future[Seq[Person]] = {
-    db.run(people.sortBy(_.name.desc.nullsFirst).result)
+    db.run(people.sortBy(_.name.asc.nullsFirst).result)
   }
 
   def findByLocation(location: String): Future[Seq[Person]] = {
-    db.run(people.filter(_.location === location).sortBy(_.name.desc.nullsFirst).result)
+    db.run(people.filter(_.location === location).sortBy(_.name.asc.nullsFirst).result)
   }
 
   def countByLocation(location: String): Future[Int] = {
