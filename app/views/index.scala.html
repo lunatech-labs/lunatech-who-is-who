@@ -40,9 +40,7 @@
                           <td><a href="@controllers.routes.PersonController.edit(person.id.get)">@person.name</a></td>
                           <td><a href="">@person.phone</a></td>
                           <td><img style="max-width:140px" class="photo" src="@controllers.routes.PersonController.getImage(person.photo.getOrElse(""))"  onerror="this.src='@routes.Assets.versioned("images/ali.jpeg")'"/></td>
-                          <td><pre>
-                            @person.description.toString
-                          </pre>
+                          <td><p style="white-space:pre-line">@person.description.toString</p>
                           </td>
                         </tr>
                       }
