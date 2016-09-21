@@ -99,6 +99,7 @@ class PersonRepository @Inject()(protected val dbConfigProvider: DatabaseConfigP
   // could be written like this:
   //
   def delete(id: Long): Future[Int] = {
+//    println("DEBUG 30 deleting: " + id.toString)
     val action = people.filter(_.id === id).delete
     db.run(action)
   }

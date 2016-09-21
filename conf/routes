@@ -13,6 +13,7 @@ GET        /images/:id         			    controllers.PersonController.getImage(id: 
 POST       /person                      controllers.PersonController.create
 POST       /person/:id                  controllers.PersonController.update(id:Long)
 GET        /person/:id                  controllers.PersonController.edit(id:Long)
+GET     /person/:id/delete           controllers.PersonController.delete(id:Long)
 DELETE     /person/:id/delete           controllers.PersonController.delete(id:Long)
 GET        /                            controllers.PersonController.index()
 GET        /people                     controllers.PersonController.all()

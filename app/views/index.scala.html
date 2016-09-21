@@ -109,13 +109,20 @@
       </section><!-- /.content -->
 
       <!-- Modal -->
+      <!--pop up dialog-->
       <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
 
         <div class="modal-dialog" role="document">
           <div class="modal-content">
             <div class="modal-header">
               <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+              @if(form("id").value.getOrElse("") != "") {
+
+              <h4 class="modal-title" id="myModalLabel">Edit an employee</h4>
+              } else {
+
               <h4 class="modal-title" id="myModalLabel">Add an employee</h4>
+              }
             </div>
             <div class="modal-body">
               @if(form("id").value.getOrElse("") != "") {
@@ -163,8 +170,9 @@
 
             </div>
             <div class="modal-footer">
-              @if(form("id").value.getOrElse("") != "") {
-                <button class="btn btn-danger">Delete person</button>
+              @if(form("id").value.getOrElse("") != ""){
+
+                <a href="@routes.PersonController.delete(form("id").value.getOrElse("").toLong)"><button class="btn btn-danger">Delete Person</button></a>
                 <button onclick="$('#newPerson').submit();" class="btn btn-primary">Update person</button>
               } else {
                 <button onclick="$('#newPerson').submit();" class="btn btn-primary">Add person</button>
