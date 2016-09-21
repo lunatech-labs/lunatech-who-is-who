@@ -171,7 +171,7 @@
             </div>
             <div class="modal-footer">
               @if(form("id").value.getOrElse("") != ""){
-
+                <!--issue two-->
                 <a href="@routes.PersonController.delete(form("id").value.getOrElse("").toLong)"><button class="btn btn-danger">Delete Person</button></a>
                 <button onclick="$('#newPerson').submit();" class="btn btn-primary">Update person</button>
               } else {
