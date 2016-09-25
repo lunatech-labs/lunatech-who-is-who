@@ -39,5 +39,4 @@ libraryDependencies ++= Seq( ws,
 
 )
 
-
-
+libraryDependencies += filters

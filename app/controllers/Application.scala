@@ -276,13 +276,22 @@ trait RestSecured {
   private def token(request: RequestHeader): Option[String] = {
     // Check if we have a token
     // If there an API token in the request
-    val ret = request.headers.get("tokenApi").flatMap { token =>
-      // Is it a valid one?
-      Await.result(getRepo().findByToken(token).map { dbToken =>
-        dbToken.map(_.tokenApi)
-      },  2 second)
+    val tokenAPIHeader = request.headers.get("tokenApi")
+    val tokenAPIRequest = request.queryString.get("tokenApi").flatMap(_.headOption)
+    (tokenAPIHeader, tokenAPIRequest) match {
+      case (Some(token), _) => {
+        Await.result(getRepo().findByToken(token).map { dbToken =>
+          dbToken.map(_.tokenApi)
+        },  2 second)
+      }
+      case (_, Some(token)) => {
+        Await.result(getRepo().findByToken(token).map { dbToken =>
+          dbToken.map(_.tokenApi)
+        },  2 second)
+
+      }
     }
-    ret
+
   }
 
   /**
