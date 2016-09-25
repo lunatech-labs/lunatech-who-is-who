@@ -9,3 +9,5 @@ case class Person(id: Option[Long], name: String, email: String, role: String, p
 object Person {
   implicit val formatter = Json.format[Person]
 }
+
+case class Token(email: String, tokenApi: String)

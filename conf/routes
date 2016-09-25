@@ -2,26 +2,28 @@
 # This file defines all application routes (Higher priority routes first)
 # ~~~~
 
-#authentication
-GET         /login                      controllers.PersonController.login()
-GET         /authenticate               controllers.PersonController.authenticate(code: String, id_token: String, access_token: String)
-GET         /logout                     controllers.PersonController.logout()
+# Web Authentication
+GET         /login                      controllers.Application.login()
+GET         /authenticate               controllers.Application.authenticate(code: String, id_token: String, access_token: String)
+GET         /logout                     controllers.Application.logout()
 
-POST  	   /images    					        controllers.PersonController.saveImage(id: Long)
-GET        /images/:id         			    controllers.PersonController.getImage(id: String)
+POST  	   /images    					        controllers.Application.saveImage(id: Long)
+GET        /images/:id         			    controllers.Application.getImage(id: String)
 
-POST       /person                      controllers.PersonController.create
-POST       /person/:id                  controllers.PersonController.update(id:Long)
-GET        /person/:id                  controllers.PersonController.edit(id:Long)
-GET     /person/:id/delete           controllers.PersonController.delete(id:Long)
-DELETE     /person/:id/delete           controllers.PersonController.delete(id:Long)
-GET        /                            controllers.PersonController.index()
-GET        /people                     controllers.PersonController.all()
-GET        /people/:office             controllers.PersonController.searchByLocation(office: String)
+POST       /person                      controllers.Application.create
+POST       /person/:id                  controllers.Application.update(id:Long)
+GET        /person/:id                  controllers.Application.edit(id:Long)
+DELETE     /person/:id                  controllers.Application.delete(id:Long)
+GET        /                            controllers.Application.index()
+GET        /people                      controllers.Application.all()
+GET        /people/:office              controllers.Application.searchByLocation(office: String)
 
 
 # REST api
-GET       /api/v1/people               controllers.PersonController.apiAll()
+GET       /api/v1/people                controllers.Application.apiViewAll()
+GET       /api/v1/person/:id/picture    controllers.Application.apiGetImage(id: Long)
+GET       /api/v1/person/:id            controllers.Application.apiView(id: Long)
+DELETE    /api/v1/person/:id            controllers.Application.apiDelete(id:Long)
 
 # Map static resources from the /public folder to the /assets URL path
 GET         /assets/*file               controllers.Assets.versioned(path="/public", file: Asset)

@@ -1,6 +1,6 @@
-@(username: String, form: Form[Person], people: Seq[Person], countAll: Int, countRotterdam: Int, countMontevrain: Int, office: String = "all")(implicit messages: Messages)
+@(username: String, token: String, form: Form[Person], people: Seq[Person], countAll: Int, countRotterdam: Int, countMontevrain: Int, office: String = "all")(implicit messages: Messages)
 
-@main("WhoIsWho", username) {
+@main("WhoIsWho", username, token) {
 
 
   <!-- Content Wrapper. Contains page content -->
@@ -37,12 +37,12 @@
                     <tbody>
                       @for(person <- people) {
                       <tr>
-                          <td><a href="@controllers.routes.PersonController.edit(person.id.get)">@person.name</a></td>
+                          <td><a href="@controllers.routes.Application.edit(person.id.get)">@person.name</a></td>
                           <td><a href="">@person.phone</a></td>
                           <td class="pitch">
 
 
-                            <img id="photos-@person.id.get" style="max-width:140px" class="photo" src="@controllers.routes.PersonController.getImage(person.photo.getOrElse(""))" onerror="this.src='@routes.Assets.versioned("images/unknown_user.png")'" />
+                            <img id="photos-@person.id.get" style="max-width:140px" class="photo" src="@controllers.routes.Application.getImage(person.photo.getOrElse(""))" onerror="this.src='@routes.Assets.versioned("images/unknown_user.png")'" />
 
                             <form id="mydropzone-@person.id.get" action="/images" class="dropzone dz-clickable dz-started" method="POST">
                                 <input type="hidden" name="id" value="@person.id.get">
@@ -126,9 +126,9 @@
             </div>
             <div class="modal-body">
               @if(form("id").value.getOrElse("") != "") {
-                <form id="newPerson" action="@routes.PersonController.update(form("id").value.get.toLong)" method="POST" enctype="multipart/form-data">
+                <form id="newPerson" action="@routes.Application.update(form("id").value.get.toLong)" method="POST" enctype="multipart/form-data">
               } else {
-                <form id="newPerson" action="@routes.PersonController.create()" method="POST" enctype="multipart/form-data">
+                <form id="newPerson" action="@routes.Application.create()" method="POST" enctype="multipart/form-data">
               }
                 <input type="hidden" name="id" value="@form("id").value">
                 <div class="form-group @if(form.errors("name").nonEmpty){has-error}">
@@ -172,7 +172,7 @@
             <div class="modal-footer">
               @if(form("id").value.getOrElse("") != ""){
                 <!--issue two-->
-                <a href="@routes.PersonController.delete(form("id").value.getOrElse("").toLong)"><button class="btn btn-danger">Delete Person</button></a>
+                <button onclick="$.ajax({url:'@routes.Application.delete(form("id").value.getOrElse("").toLong)', type: 'DELETE', success: function(result) { location.href='@routes.Application.all()';} });" class="btn btn-danger">Delete Person</button>
                 <button onclick="$('#newPerson').submit();" class="btn btn-primary">Update person</button>
               } else {
                 <button onclick="$('#newPerson').submit();" class="btn btn-primary">Add person</button>

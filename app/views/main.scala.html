@@ -1,5 +1,5 @@
 @import utils._
-@(title: String, username: String)(content: Html)
+@(title: String, username: String, token: String)(content: Html)
 <!DOCTYPE html>
 <html>
   <head>
@@ -62,14 +62,14 @@
                   <li class="user-header">
                     <img src="http://www.gravatar.com/avatar/@TimeUtil.md5(username)?d=mm&s=80" class="img-circle" alt="User Image">
                     <p style="color:#555;">
-                      @username - Developer
-                      <small>Member since Nov. 2012</small>
+                      @username
+                      <small>Your API token is <i>@token</i></small>
                     </p>
                   </li>
                   <!-- Menu Footer-->
                   <li class="user-footer">
                     <div class="pull-right">
-                      <a href="@routes.PersonController.logout()" class="btn btn-default btn-flat">Sign out</a>
+                      <a href="@routes.Application.logout()" class="btn btn-default btn-flat">Sign out</a>
                     </div>
                   </li>
                 </ul>

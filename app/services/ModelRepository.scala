@@ -16,11 +16,41 @@ import scala.concurrent.Future
   * @param dbConfigProvider The Play db config provider. Play will inject this for you.
   */
 @Singleton
-class PersonRepository @Inject()(protected val dbConfigProvider: DatabaseConfigProvider) extends HasDatabaseConfigProvider[JdbcProfile]{
+class ModelRepository @Inject()(protected val dbConfigProvider: DatabaseConfigProvider) extends HasDatabaseConfigProvider[JdbcProfile]{
   // We want the JdbcProfile for this provider
   // These imports are important, the first one brings db into scope, which will let you do the actual db operations.
   // The second one brings the Slick DSL into scope, which lets you define the table and other queries.
   import driver.api._
+
+
+  private class TokensTable(tag: Tag) extends Table[Token](tag, "tokens") {
+    def email = column[String]("email", O.PrimaryKey)
+    def token = column[String]("token")
+
+    def * = (email, token).shaped <> (
+      { case (email, token) =>
+        Token(email, token)
+      }, {
+        t: Token => Some((t.email, t.tokenApi))
+      })
+
+  }
+
+  private val tokens = TableQuery[TokensTable]
+
+
+  def insert(token: Token): Future[Int] = {
+    val action = tokens += token
+    db.run(action)
+  }
+
+  def findByEmail(email: String): Future[Option[Token]] = {
+    db.run(tokens.filter(_.email === email).result.headOption)
+  }
+
+  def findByToken(token: String): Future[Option[Token]] = {
+    db.run(tokens.filter(_.token === token).result.headOption)
+  }
 
   /**
     * Here we define the table. It will have a name of people
@@ -92,14 +122,10 @@ class PersonRepository @Inject()(protected val dbConfigProvider: DatabaseConfigP
   }
 
   def findById(id: Long): Future[Option[Person]] = {
-    //Logger.debug("ID = " + id)
     db.run(people.filter(_.id === id).result.headOption)
   }
 
-  // could be written like this:
-  //
   def delete(id: Long): Future[Int] = {
-//    println("DEBUG 30 deleting: " + id.toString)
     val action = people.filter(_.id === id).delete
     db.run(action)
   }
