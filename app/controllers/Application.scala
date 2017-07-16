@@ -100,7 +100,7 @@ class Application @Inject()(repo: ModelRepository, val messagesApi: MessagesApi,
       countAmsterdam <- futureCountAmsterdam
       countChessy <- futureCountChessy
     } yield {
-        Ok(views.html.index(username, token, personForm, people, countAll, countRotterdam, countAmsterdam, countChessy))
+        Ok(views.html.index(username, token, personForm.fill(person.get), people, countAll, countRotterdam, countAmsterdam, countChessy))
     }
   }
 
