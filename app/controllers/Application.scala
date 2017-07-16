@@ -66,13 +66,18 @@ class Application @Inject()(repo: ModelRepository, val messagesApi: MessagesApi,
   }
 
   private def search(username: String, token: String, p: Future[Seq[Person]], office: String = "all") = {
+    val futureCountAll = repo.count()
+    val futureCountRotterdam = repo.countByLocation("rotterdam")
+    val futureCountAmsterdam = repo.countByLocation("amsterdam")
+    val futureCountChessy = repo.countByLocation("chessy")
     for {
       people <- p
-      countAll <- repo.count()
-      countRotterdam <- repo.countByLocation("rotterdam")
-      countMontevrain <- repo.countByLocation("montevrain")
+      countAll <- futureCountAll
+      countRotterdam <- futureCountRotterdam
+      countAmsterdam <- futureCountAmsterdam
+      countChessy <- futureCountChessy
     } yield {
-        Ok(views.html.index(username, token, personForm, people, countAll, countRotterdam, countMontevrain, office))
+        Ok(views.html.index(username, token, personForm, people, countAll, countRotterdam, countAmsterdam, countChessy, office))
     }
   }
 
@@ -83,28 +88,38 @@ class Application @Inject()(repo: ModelRepository, val messagesApi: MessagesApi,
   }
 
   def edit(id: Long) = IsAuthenticated { case (username, token) => implicit request =>
+    val p = repo.all()
+    val futureCountAll = repo.count()
+    val futureCountRotterdam = repo.countByLocation("rotterdam")
+    val futureCountAmsterdam = repo.countByLocation("amsterdam")
+    val futureCountChessy = repo.countByLocation("chessy")
     for {
-      people <- repo.all()
-      person <- repo.findById(id)
-      countAll <- repo.count()
-      countRotterdam <- repo.countByLocation("rotterdam")
-      countMontevrain <- repo.countByLocation("montevrain")
+      people <- p
+      countAll <- futureCountAll
+      countRotterdam <- futureCountRotterdam
+      countAmsterdam <- futureCountAmsterdam
+      countChessy <- futureCountChessy
     } yield {
-        Ok(views.html.index(username, token, personForm.fill(person.get), people, countAll, countRotterdam, countMontevrain))
+        Ok(views.html.index(username, token, personForm, people, countAll, countRotterdam, countAmsterdam, countChessy))
     }
-
   }
 
   def update(id: Long) = IsAuthenticated { case (username, token) => implicit request =>
     personForm.bindFromRequest.fold(
       errorForm => {
+        val p = repo.all()
+        val futureCountAll = repo.count()
+        val futureCountRotterdam = repo.countByLocation("rotterdam")
+        val futureCountAmsterdam = repo.countByLocation("amsterdam")
+        val futureCountChessy = repo.countByLocation("chessy")
         for {
-          people <- repo.all()
-          countAll <- repo.count()
-          countRotterdam <- repo.countByLocation("rotterdam")
-          countMontevrain <- repo.countByLocation("montevrain")
+          people <- p
+          countAll <- futureCountAll
+          countRotterdam <- futureCountRotterdam
+          countAmsterdam <- futureCountAmsterdam
+          countChessy <- futureCountChessy
         } yield {
-            BadRequest(views.html.index(username, token, errorForm, people, countAll, countRotterdam, countMontevrain))
+            BadRequest(views.html.index(username, token, errorForm, people, countAll, countRotterdam, countAmsterdam, countChessy))
         }
       },
       person => {
@@ -123,13 +138,19 @@ class Application @Inject()(repo: ModelRepository, val messagesApi: MessagesApi,
     // This will trigger validation
     personForm.bindFromRequest.fold(
       errorForm => {
+        val p = repo.all()
+        val futureCountAll = repo.count()
+        val futureCountRotterdam = repo.countByLocation("rotterdam")
+        val futureCountAmsterdam = repo.countByLocation("amsterdam")
+        val futureCountChessy = repo.countByLocation("chessy")
         for {
-          people <- repo.all()
-          countAll <- repo.count()
-          countRotterdam <- repo.countByLocation("rotterdam")
-          countMontevrain <- repo.countByLocation("montevrain")
+          people <- p
+          countAll <- futureCountAll
+          countRotterdam <- futureCountRotterdam
+          countAmsterdam <- futureCountAmsterdam
+          countChessy <- futureCountChessy
         } yield {
-            BadRequest(views.html.index(username, token, errorForm, people, countAll, countRotterdam, countMontevrain))
+            BadRequest(views.html.index(username, token, errorForm, people, countAll, countRotterdam, countAmsterdam, countChessy))
         }
       },
       person => {

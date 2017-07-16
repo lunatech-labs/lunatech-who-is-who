@@ -1,4 +1,4 @@
-@(username: String, token: String, form: Form[Person], people: Seq[Person], countAll: Int, countRotterdam: Int, countMontevrain: Int, office: String = "all")(implicit messages: Messages)
+@(username: String, token: String, form: Form[Person], people: Seq[Person], countAll: Int, countRotterdam: Int, countAmsterdam: Int, countChessy: Int, office: String = "all")(implicit messages: Messages)
 
 @main("WhoIsWho", username, token) {
 
@@ -14,7 +14,7 @@
       <!-- Main content -->
       <section class="content">
         <div class="row">
-          @menu(office, countAll, countRotterdam, countMontevrain)
+          @menu(office, countAll, countRotterdam, countAmsterdam, countChessy)
           <div class="col-md-9">
             <div class="box box-primary">
               <div class="box-header with-border">
@@ -155,7 +155,8 @@
                   <select id="location" name="location" class="form-control"
                 value="" />
                     <option @if(form("location").value.getOrElse("")=="rotterdam"){selected} value="rotterdam">Rotterdam</option>
-                    <option @if(form("location").value.getOrElse("")=="montevrain"){selected} value="montevrain">Montevrain</option>
+                    <option @if(form("location").value.getOrElse("")=="amsterdam"){selected} value="amsterdam">Amsterdam</option>
+                    <option @if(form("location").value.getOrElse("")=="chessy"){selected} value="chessy">Chessy</option>
                   </select>
             </select>
 

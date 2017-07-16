@@ -1,4 +1,4 @@
-@(active: String, countAll: Int, countRotterdam: Int, countMontevrain: Int)
+@(active: String, countAll: Int, countRotterdam: Int, countAmsterdam: Int, countChessy: Int)
 <div class="col-md-3">
   <a class="btn btn-primary btn-block margin-bottom" data-toggle="modal" data-target="#myModal">Add new person</a>
   <div class="box box-solid">
@@ -12,7 +12,8 @@
       <ul class="nav nav-pills nav-stacked">
         <li @if(active == "all") {class="active"}><a href="@routes.Application.index()"><i class="fa fa-server"></i> All <span class="label label-primary pull-right">@countAll</span></a></li>
         <li @if(active == "rotterdam") {class="active"}><a href="@routes.Application.searchByLocation("rotterdam")"><i class="fa fa-users"></i> Rotterdam <span class="label label-primary pull-right">@countRotterdam</span></a></li>
-        <li @if(active == "montevrain") {class="active"}><a href="@routes.Application.searchByLocation("montevrain")"><i class="fa fa-cubes"></i> Montévrain <span class="label label-primary pull-right">@countMontevrain</span></a></li>
+        <li @if(active == "amsterdam") {class="active"}><a href="@routes.Application.searchByLocation("amsterdam")"><i class="fa fa-users"></i> Amsterdam <span class="label label-primary pull-right">@countAmsterdam</span></a></li>
+        <li @if(active == "chessy") {class="active"}><a href="@routes.Application.searchByLocation("chessy")"><i class="fa fa-cubes"></i> Chessy <span class="label label-primary pull-right">@countChessy</span></a></li>
       </ul>
     </div><!-- /.box-body -->
   </div><!-- /. box -->
