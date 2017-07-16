@@ -95,6 +95,7 @@ class Application @Inject()(repo: ModelRepository, val messagesApi: MessagesApi,
     val futureCountChessy = repo.countByLocation("chessy")
     for {
       people <- p
+      person <- repo.findById(id)
       countAll <- futureCountAll
       countRotterdam <- futureCountRotterdam
       countAmsterdam <- futureCountAmsterdam
